@@ -23,7 +23,6 @@ namespace Net.Connection
                         DbPassword = value.DbPassword,
                         language = BoSuppLangs.ln_Spanish_La
                     };
-
                     RepositoryBaseSap.oCompany.CompanyDB = value.CompanyDB;
                     RepositoryBaseSap.oCompany.UserName = value.UserName;
                     RepositoryBaseSap.oCompany.Password = value.Password;
@@ -43,7 +42,6 @@ namespace Net.Connection
                             RepositoryBaseSap.oCompany.DbServerType = BoDataServerTypes.dst_MSSQL2014;
                             break;
                     }
-
                     //Se abre la conexion con SAP: AQUI SALE ERROR
                     result = RepositoryBaseSap.oCompany.Connect();
 
@@ -60,7 +58,6 @@ namespace Net.Connection
             catch (Exception)
             {
             }
-
             return result;
         }
 

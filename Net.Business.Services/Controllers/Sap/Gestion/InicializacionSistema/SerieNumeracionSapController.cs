@@ -33,5 +33,20 @@ namespace Net.Business.Services.Controllers.Sap.Gestion.InicializacionSistema
 
             return Ok(objectGet.dataList);
         }
+
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetNumDocumentoByTipoAndSerie([FromQuery] FilterRequestDto value)
+        {
+            var objectGet = await _repository.SerieNumeracionSap.GetNumDocumentoByTipoAndSerie(value.ReturnValue());
+
+            if (objectGet.ResultadoCodigo == -1)
+            {
+                return BadRequest(objectGet);
+            }
+
+            return Ok(objectGet.data);
+        }
     }
 }

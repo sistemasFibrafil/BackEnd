@@ -16,6 +16,8 @@ namespace Net.Data.Sap
         Task<ResultadoTransaccionEntity<MemoryStream>> GetArticuloVentaExcelByGrupoSubGrupoEstado(FilterRequestEntity value);
         Task<ResultadoTransaccionEntity<ArticuloVentaStockByGrupoSubGrupo>> GetListArticuloVentaStockByGrupoSubGrupo(FilterRequestEntity value);
         Task<ResultadoTransaccionEntity<MemoryStream>> GetArticuloVentaStockExcelByGrupoSubGrupo(FilterRequestEntity value);
+        Task<ResultadoTransaccionEntity<ArticuloSapEntity>> GetListArticuloByGrupoSubGrupoFiltro(FilterRequestEntity value);
+        Task<ResultadoTransaccionEntity<MemoryStream>> GetListArticuloExcelByGrupoSubGrupoFiltro(FilterRequestEntity value);
         Task<ResultadoTransaccionEntity<MovimientoStockSapByFechaSedeEntity>> GetListMovimientoStockByFechaSede(FilterRequestEntity value);
         Task<ResultadoTransaccionEntity<MemoryStream>> GetMovimientoStockExcelByFechaSede(FilterRequestEntity value);
         Task<ResultadoTransaccionEntity<ArticuloSapForSodimacBySkuItemEntity>> GetArticuloForOrdenVentaSodimacBySku(ArticuloSapForSodimacBySkuEntity value);

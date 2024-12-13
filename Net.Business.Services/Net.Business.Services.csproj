@@ -33,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="logos\" />
     <Folder Include="Resources\" />
   </ItemGroup>
 

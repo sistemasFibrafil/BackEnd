@@ -13,6 +13,7 @@ using Net.Business.Entities.Sap;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
+using DocumentFormat.OpenXml.Office2010.Word;
 namespace Net.Data.Web
 {
     public class SolicitudTrasladoRepository : RepositoryBase<SolicitudTrasladoEntity>, ISolicitudTrasladoRepository
@@ -198,6 +199,7 @@ namespace Net.Data.Web
         }
         public async Task<ResultadoTransaccionEntity<SolicitudTrasladoEntity>> SetCreate(SolicitudTrasladoEntity value)
         {
+            var con = -1;
             var responde = new SolicitudTrasladoSapEntity();
             var resultTransaccion = new ResultadoTransaccionEntity<SolicitudTrasladoEntity>();
 
@@ -215,7 +217,17 @@ namespace Net.Data.Web
                         await conn.OpenAsync();
                         conn.EnlistTransaction(transaction);
 
-                        _connectionSap.ConnectToCompany(_cnnDiApiSap);
+                        while (con != 0)
+                        {
+                            con = _connectionSap.ConnectToCompany(_cnnDiApiSap);
+                        }
+                        if (RepositoryBaseSap.oCompany is not null)
+                        {
+                            if (RepositoryBaseSap.oCompany.InTransaction)
+                            {
+                                RepositoryBaseSap.oCompany.EndTransaction(BoWfTransOpt.wf_RollBack);
+                            }
+                        }
                         RepositoryBaseSap.oCompany.StartTransaction();
 
                         StockTransfer documentIns = RepositoryBaseSap.oCompany.GetBusinessObject(BoObjectTypes.oInventoryTransferRequest);
@@ -522,7 +534,7 @@ namespace Net.Data.Web
 
                         try
                         {
-                            #region <<< CREACIÓN DE SOLICITUD DE TRASLADO >>>
+                            #region <<< ACTUALIZACIÓN DE SOLICITUD DE TRASLADO >>>
                             // Creación de la solicitud de traslado en la base de datos LOCAL
                             using (SqlCommand cmd = new SqlCommand(SP_SET_UPDATE, conn))
                             {
@@ -578,7 +590,7 @@ namespace Net.Data.Web
                             }
 
                             // SE ACTUALIZA
-                            foreach (var linea in value.Linea.Where(x => x.Record == 2))
+                            foreach (var linea in value.Linea.Where(x => x.Record == 2 && x.LineStatus == "01"))
                             {
                                 using (SqlCommand cmd = new SqlCommand(SP_SET_DETALLE_UPDATE, conn))
                                 {
@@ -593,8 +605,6 @@ namespace Net.Data.Web
                                     cmd.Parameters.Add(new SqlParameter("@WhsCode", linea.WhsCode));
                                     cmd.Parameters.Add(new SqlParameter("@UnitMsr", linea.UnitMsr));
                                     cmd.Parameters.Add(new SqlParameter("@Quantity", linea.Quantity));
-                                    cmd.Parameters.Add(new SqlParameter("@OpenQty", linea.OpenQty));
-                                    cmd.Parameters.Add(new SqlParameter("@OpenQtyRding", linea.OpenQtyRding));
                                     cmd.Parameters.Add(new SqlParameter("@IdUsuarioUpdate", linea.IdUsuarioUpdate));
 
                                     await cmd.ExecuteNonQueryAsync();
@@ -621,7 +631,7 @@ namespace Net.Data.Web
                             #region <<< SAP >>>
                             try
                             {
-                                #region <<< CREACIÓN DE SOLICITUD DE TRASLADO EN SAP >>>
+                                #region <<< ACTUALIZACIÓN DE SOLICITUD DE TRASLADO EN SAP >>>
                                 if (documentUpd.GetByKey(value.DocEntry))
                                 {
                                     // Creacion de la solicitud de traslado en la base de datos SAP B1
@@ -679,7 +689,7 @@ namespace Net.Data.Web
                                     }
 
                                     // SE ACTUALIZA
-                                    foreach (var linea in value.Linea.Where(x => x.Record == 2))
+                                    foreach (var linea in value.Linea.Where(x => x.Record == 2 && x.LineStatus == "01"))
                                     {
                                         documentUpd.Lines.SetCurrentLine(linea.LineNum);
                                         documentUpd.Lines.ItemCode = linea.ItemCode;
@@ -874,7 +884,7 @@ namespace Net.Data.Web
 
                         try
                         {
-                            #region <<< CREACIÓN DE SOLICITUD DE TRASLADO >>>
+                            #region <<< CERRAR LA SOLICITUD DE TRASLADO >>>
                             // Creación de la solicitud de traslado en la base de datos LOCAL
                             using (SqlCommand cmd = new SqlCommand(SP_SET_CLOSE, conn))
                             {
@@ -892,7 +902,7 @@ namespace Net.Data.Web
                             #region <<< SAP >>>
                             try
                             {
-                                #region <<< CREACIÓN DE SOLICITUD DE TRASLADO EN SAP >>>
+                                #region <<< CERRAR LA SOLICITUD DE TRASLADO EN SAP >>>
                                 // Creacion de la solicitud de traslado en la base de datos SAP B1
                                 // ===========================================================================================
                                 // CABECERA

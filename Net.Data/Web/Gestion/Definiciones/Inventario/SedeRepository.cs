@@ -21,7 +21,7 @@ namespace Net.Data.Web
         
         // STORED PROCEDURE
         const string DB_ESQUEMA = "";
-        const string SP_GET_BY_FILTRO = DB_ESQUEMA + "GES_GetListSedeByFiltro";
+        const string SP_GET_LIST_BY_FILTRO = DB_ESQUEMA + "GES_GetListSedeByFiltro";
         const string SP_SET_CREATE = DB_ESQUEMA + "GES_SetSedeCreate";
         const string SP_SET_UPDATE = DB_ESQUEMA + "GES_SetSedeUpdate";
         const string SP_SET_DELETE = DB_ESQUEMA + "GES_SetSedeDelete";
@@ -50,7 +50,7 @@ namespace Net.Data.Web
                 {
                     conn.Open();
 
-                    using (SqlCommand cmd = new SqlCommand(SP_GET_BY_FILTRO, conn))
+                    using (SqlCommand cmd = new SqlCommand(SP_GET_LIST_BY_FILTRO, conn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandTimeout = 0;
@@ -64,7 +64,7 @@ namespace Net.Data.Web
 
                     resultTransaccion.IdRegistro = 0;
                     resultTransaccion.ResultadoCodigo = 0;
-                    resultTransaccion.ResultadoDescripcion = "Datos obtenidos con éxito ..!";
+                    resultTransaccion.ResultadoDescripcion = string.Format("Registros Totales {0}", response.Count);
                     resultTransaccion.dataList = response;
                 }
             }

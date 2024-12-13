@@ -36,7 +36,9 @@ namespace Net.Data.Sap
 
         const string SP_GET_LIST_ARTICULO_VENTA_GRUPO_SUBGRUPO_ESTADO = DB_ESQUEMA + "INV_GetListArticuloVentaByGrupoSubGrupoEstado";
         const string SP_GET_LIST_ARTICULO_VENTA_STOCK_BY_GRUPO_SUBGRUPO = DB_ESQUEMA + "INV_GetListArticuloVentaStockByGrupoSubGrupo";
+        const string SP_GET_LIST_ARTICULO_BY_GRUPO_SUBGRUPO_FILTRO = DB_ESQUEMA + "INV_GetListArticuloByGrupoSubGrupoFiltro";
         const string SP_GET_LIST_MOVIMIENTO_STOCK_BY_FECHA_SEDE = DB_ESQUEMA + "INV_GetListMovimientoStockByFechaSede";
+
         // Para generación de OV de SODIMAC
         const string SP_GET_FOR_ORDEN_VENTA_SODIMAC_SKU = DB_ESQUEMA + "VEN_GetArticuloForOrdenVentaSodimacBySku";
         // Para generación de OV
@@ -98,8 +100,6 @@ namespace Net.Data.Sap
 
             return resultTransaccion;
         }
-
-
         public async Task<ResultadoTransaccionEntity<ArticuloSapEntity>> GetByCode(FilterRequestEntity value)
         {
             var response = new ArticuloSapEntity();
@@ -648,6 +648,146 @@ namespace Net.Data.Sap
                         ExportToExcel.ConstructCell(item.Comprometido.ToString(), CellValues.Number),
                         ExportToExcel.ConstructCell(item.Solicitado.ToString(), CellValues.Number),
                         ExportToExcel.ConstructCell(item.Disponible.ToString(), CellValues.Number),
+                        ExportToExcel.ConstructCell(item.PesoPromedioKg.ToString(), CellValues.Number));
+                        sheetData.Append(row);
+                    }
+
+                    worksheetPart.Worksheet.Save();
+                    document.Close();
+                }
+
+                resultTransaccion.IdRegistro = 0;
+                resultTransaccion.ResultadoCodigo = 0;
+                resultTransaccion.ResultadoDescripcion = "Archivo generado con éxito.";
+                resultTransaccion.data = ms;
+            }
+            catch (Exception ex)
+            {
+                resultTransaccion.IdRegistro = -1;
+                resultTransaccion.ResultadoCodigo = -1;
+                resultTransaccion.ResultadoDescripcion = ex.Message.ToString();
+            }
+
+            return resultTransaccion;
+        }
+
+
+        public async Task<ResultadoTransaccionEntity<ArticuloSapEntity>> GetListArticuloByGrupoSubGrupoFiltro(FilterRequestEntity value)
+        {
+            var response = new List<ArticuloSapEntity>();
+            var resultTransaccion = new ResultadoTransaccionEntity<ArticuloSapEntity>();
+
+            _metodoName = regex.Match(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name).Groups[1].Value.ToString();
+
+            resultTransaccion.NombreMetodo = _metodoName;
+            resultTransaccion.NombreAplicacion = _aplicacionName;
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(_cnxSap))
+                {
+                    conn.Open();
+
+                    using (SqlCommand cmd = new SqlCommand(SP_GET_LIST_ARTICULO_BY_GRUPO_SUBGRUPO_FILTRO, conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandTimeout = 0;
+                        cmd.Parameters.Add(new SqlParameter("@ExcluirInactivo", value.Val1));
+                        cmd.Parameters.Add(new SqlParameter("@ExcluirSinStock", value.Val2));
+                        cmd.Parameters.Add(new SqlParameter("@InvntItem", value.Val4));
+                        cmd.Parameters.Add(new SqlParameter("@SellItem", value.Val3));
+                        cmd.Parameters.Add(new SqlParameter("@PrchseItem", value.Val5));
+                        cmd.Parameters.Add(new SqlParameter("@Grupo", value.Cod1));
+                        cmd.Parameters.Add(new SqlParameter("@SubGrupo", value.Cod2));
+                        cmd.Parameters.Add(new SqlParameter("@SubGrupo2", value.Cod3));
+                        cmd.Parameters.Add(new SqlParameter("@Filtro", value.Text1));
+
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            response = (List<ArticuloSapEntity>)context.ConvertTo<ArticuloSapEntity>(reader);
+                        }
+                    }
+
+                    resultTransaccion.IdRegistro = 0;
+                    resultTransaccion.ResultadoCodigo = 0;
+                    resultTransaccion.ResultadoDescripcion = string.Format("Registros Totales {0}", response.Count);
+                    resultTransaccion.dataList = response;
+                }
+            }
+            catch (Exception ex)
+            {
+                resultTransaccion.IdRegistro = -1;
+                resultTransaccion.ResultadoCodigo = -1;
+                resultTransaccion.ResultadoDescripcion = ex.Message.ToString();
+            }
+
+            return resultTransaccion;
+        }
+        public async Task<ResultadoTransaccionEntity<MemoryStream>> GetListArticuloExcelByGrupoSubGrupoFiltro(FilterRequestEntity value)
+        {
+            var ms = new MemoryStream();
+            var resultTransaccion = new ResultadoTransaccionEntity<MemoryStream>();
+
+            _metodoName = regex.Match(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name).Groups[1].Value.ToString();
+
+            resultTransaccion.NombreMetodo = _metodoName;
+            resultTransaccion.NombreAplicacion = _aplicacionName;
+
+            try
+            {
+                using (SpreadsheetDocument document = SpreadsheetDocument.Create(ms, SpreadsheetDocumentType.Workbook))
+                {
+                    WorkbookPart workbookPart = document.AddWorkbookPart();
+                    workbookPart.Workbook = new Workbook();
+
+                    WorksheetPart worksheetPart = workbookPart.AddNewPart<WorksheetPart>();
+                    worksheetPart.Worksheet = new Worksheet();
+
+                    Sheets sheets = workbookPart.Workbook.AppendChild(new Sheets());
+                    Sheet sheet = new Sheet() { Id = workbookPart.GetIdOfPart(worksheetPart), SheetId = 1, Name = "Artículos por grupo - subgrupo" };
+                    sheets.Append(sheet);
+
+                    workbookPart.Workbook.Save();
+
+                    SheetData sheetData = worksheetPart.Worksheet.AppendChild(new SheetData());
+
+                    //Cabecera
+                    Row row = new Row();
+                    row.Append(
+                    ExportToExcel.ConstructCell("Código", CellValues.String),
+                    ExportToExcel.ConstructCell("Descripción", CellValues.String),
+                    ExportToExcel.ConstructCell("Estado", CellValues.String),
+                    ExportToExcel.ConstructCell("Grupo", CellValues.String),
+                    ExportToExcel.ConstructCell("SubGrupo", CellValues.String),
+                    ExportToExcel.ConstructCell("NomGrupo 2", CellValues.String),
+                    ExportToExcel.ConstructCell("UM", CellValues.String),
+                    ExportToExcel.ConstructCell("Stock", CellValues.String),
+                    ExportToExcel.ConstructCell("Comprometido", CellValues.String),
+                    ExportToExcel.ConstructCell("Solicitado", CellValues.String),
+                    ExportToExcel.ConstructCell("Disponible", CellValues.String),
+                    ExportToExcel.ConstructCell("Peso", CellValues.String),
+                    ExportToExcel.ConstructCell("Peso Promedio Kg", CellValues.String));
+                    sheetData.AppendChild(row);
+
+                    var objectGetList = await GetListArticuloByGrupoSubGrupoFiltro(value);
+
+                    //Contenido
+                    foreach (var item in objectGetList.dataList)
+                    {
+                        row = new Row();
+                        row.Append(
+                        ExportToExcel.ConstructCell(item.ItemCode, CellValues.String),
+                        ExportToExcel.ConstructCell(item.ItemName, CellValues.String),
+                        ExportToExcel.ConstructCell(item.StatusName, CellValues.String),
+                        ExportToExcel.ConstructCell(item.NomGrupo, CellValues.String),
+                        ExportToExcel.ConstructCell(item.NomSubGrupo, CellValues.String),
+                        ExportToExcel.ConstructCell(item.NomSubGrupo2, CellValues.String),
+                        ExportToExcel.ConstructCell(item.SalUnitMsr, CellValues.String),
+                        ExportToExcel.ConstructCell(item.OnHand.ToString(), CellValues.Number),
+                        ExportToExcel.ConstructCell(item.IsCommited.ToString(), CellValues.Number),
+                        ExportToExcel.ConstructCell(item.OnOrder.ToString(), CellValues.Number),
+                        ExportToExcel.ConstructCell(item.Available.ToString(), CellValues.Number),
+                        ExportToExcel.ConstructCell(item.PesoArticulo.ToString(), CellValues.Number),
                         ExportToExcel.ConstructCell(item.PesoPromedioKg.ToString(), CellValues.Number));
                         sheetData.Append(row);
                     }

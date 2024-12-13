@@ -102,7 +102,7 @@ namespace Net.Business.Entities.Sap
     public class OrdenVentaSodimacSapEntity
     {
         public int DocEntry { get; set; }
-        public string NumAtCard { get; set; }
+        public string NumOrdenCompra { get; set; }
         public int DocNum { get; set; }
         public DateTime DocDate { get; set; }
         public DateTime DocDueDate { get; set; }

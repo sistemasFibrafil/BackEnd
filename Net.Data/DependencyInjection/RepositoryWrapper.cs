@@ -5,6 +5,7 @@ using System.Net.Http;
 using Net.CrossCotting;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Configuration;
+using Net.Data.Web.Ventas.PickingList;
 namespace Net.Data
 {
     public class RepositoryWrapper: IRepositoryWrapper
@@ -42,6 +43,7 @@ namespace Net.Data
         /// GESTION
         /// </summary>
         private ISedeRepository _sede;
+        private IStatusRepository _status;
         private IFormularioRepository _formulario;
         private ITipoDocumentoRepository _tipoDocumento;
         private ISerieNumeracionRepository _serieNumeracion;
@@ -52,6 +54,13 @@ namespace Net.Data
         private ILecturaRepository _lectura;
         private IDocumentoLecturaRepository _documentoLectura;
         private ISolicitudTrasladoRepository _solicitudTraslado;
+        private ITransferenciaStockRepositoy _transferenciaStock;
+
+        /// <summary>
+        /// VENTAS
+        /// </summary>
+        private IPickingListRepository _pickingList;
+        private IOrdenVentaSodimacRepository _ordenVentaSodimac;
 
 
 
@@ -75,6 +84,7 @@ namespace Net.Data
         private ITipoCambioSapRepository _tipoCambioSap;
         private IEmpleadoVentaSapRepository _empleadoVentaSap;
         private IGrupoArticuloSapRepository _grupoArticuloSap;
+        private ITipoOperacionSapRepository _tipoOperacionSap;
         private ICondidcionPagoSapRepository _condidcionPagoSap;
         private ISerieNumeracionSapRepository _serieNumeracionSap;
         private ISubGrupoArticuloSapRepository _subGrupoArticuloSap;
@@ -88,6 +98,7 @@ namespace Net.Data
         /// </summary>
         private IArticuloSapRepository _articuloSap;
         private IDocumentoLecturaSapRepository _documentoLecturaSap;
+        private ITransferenciaStockSapRepositoy _transferenciaStockSap;
 
         /// <summary>
         /// SOCIOS DE NEGOCIOS
@@ -268,6 +279,17 @@ namespace Net.Data
                 return _sede;
             }
         }
+        public IStatusRepository Status
+        {
+            get
+            {
+                if (_status == null)
+                {
+                    _status = new StatusRepository(_repoContext);
+                }
+                return _status;
+            }
+        }
         public IFormularioRepository Formulario
         {
             get
@@ -336,6 +358,43 @@ namespace Net.Data
                     _solicitudTraslado = new SolicitudTrasladoRepository(_repoContext, _configuration);
                 }
                 return _solicitudTraslado;
+            }
+        }
+        public ITransferenciaStockRepositoy TransferenciaStock
+        {
+            get
+            {
+                if (_transferenciaStock == null)
+                {
+                    _transferenciaStock = new TransferenciaStockRepositoy(_repoContext, _configuration);
+                }
+                return _transferenciaStock;
+            }
+        }
+
+        /// <summary>
+        /// VENTAS
+        /// </summary>
+        public IPickingListRepository PickingList
+        {
+            get
+            {
+                if (_pickingList == null)
+                {
+                    _pickingList = new PickingListRepository(_repoContext, _configuration);
+                }
+                return _pickingList;
+            }
+        }
+        public IOrdenVentaSodimacRepository OrdenVentaSodimac
+        {
+            get
+            {
+                if (_ordenVentaSodimac == null)
+                {
+                    _ordenVentaSodimac = new OrdenVentaSodimacRepository(_repoContext, _configuration);
+                }
+                return _ordenVentaSodimac;
             }
         }
 
@@ -451,6 +510,17 @@ namespace Net.Data
                 return _grupoArticuloSap;
             }
         }
+        public ITipoOperacionSapRepository TipoOperacionSap
+        {
+            get
+            {
+                if (_tipoOperacionSap == null)
+                {
+                    _tipoOperacionSap = new TipoOperacionSapRepository(_repoContext, _configuration);
+                }
+                return _tipoOperacionSap;
+            }
+        }
         public ICondidcionPagoSapRepository CondidcionPagoSap
         {
             get
@@ -553,6 +623,17 @@ namespace Net.Data
                 return _documentoLecturaSap;
             }
         }
+        public ITransferenciaStockSapRepositoy TransferenciaStockSap
+        {
+            get
+            {
+                if (_transferenciaStockSap == null)
+                {
+                    _transferenciaStockSap = new TransferenciaStockSapRepositoy(_repoContext, _configuration);
+                }
+                return _transferenciaStockSap;
+            }
+        }
 
         /// <summary>
         /// SOCIOS DE NEGOCIOS
@@ -594,6 +675,7 @@ namespace Net.Data
         /// <summary>
         /// VENTAS
         /// </summary>
+        
         public IEntregaSapRepository EntregaSap
         {
             get

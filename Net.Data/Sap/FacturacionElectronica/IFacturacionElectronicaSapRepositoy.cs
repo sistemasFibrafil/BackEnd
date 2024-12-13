@@ -6,7 +6,7 @@ namespace Net.Data.Sap
     public interface IFacturacionElectronicaSapRepositoy
     {
         Task<ResultadoTransaccionEntity<FacturacionElectronicaSapEntity>> GetListGuiaElectronicaByFiltro(FilterRequestEntity value);
-        Task<ResultadoTransaccionEntity<FacturacionElectronicaSapEntity>> SendGuiaElectronica(FilterRequestEntity value);
+        Task<ResultadoTransaccionEntity<FacturacionElectronicaSapEntity>> SetEnviar(FilterRequestEntity value);
         Task<ResultadoTransaccionEntity<FacturacionElectronicaSapEntity>> GetListGuiaInternaElectronicaByFiltro(FilterRequestEntity value);
         Task<ResultadoTransaccionEntity<FacturacionElectronicaSapEntity>> SendGuiaInternaElectronica(FilterRequestEntity value);
     }

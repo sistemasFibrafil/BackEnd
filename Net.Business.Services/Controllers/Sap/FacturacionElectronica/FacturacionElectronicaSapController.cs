@@ -39,7 +39,7 @@ namespace Net.Business.Services.Controllers.Sap.FacturacionElectronica
         [HttpPut]
         [ProducesResponseType(204)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> SendGuiaElectronica([FromBody] FilterRequestDto value)
+        public async Task<IActionResult> SetEnviar([FromBody] FilterRequestDto value)
         {
             try
             {
@@ -48,7 +48,7 @@ namespace Net.Business.Services.Controllers.Sap.FacturacionElectronica
                     return BadRequest(ModelState);
                 }
 
-                var response = await _repository.FacturacionElectronicaSap.SendGuiaElectronica(value.ReturnValue());
+                var response = await _repository.FacturacionElectronicaSap.SetEnviar(value.ReturnValue());
 
                 if (response.ResultadoCodigo == -1)
                 {

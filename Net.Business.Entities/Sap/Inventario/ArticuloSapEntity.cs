@@ -6,6 +6,11 @@ namespace Net.Business.Entities.Sap
     {
         public string ItemCode { get; set; }
         public string ItemName { get; set; }
+        public string StatusCode { get; set; }
+        public string StatusName { get; set; }
+        public string NomGrupo { get; set; }
+        public string NomSubGrupo { get; set; }
+        public string NomSubGrupo2 { get; set; }
         public string DfltWH { get; set; }
         public string WhsCode { get; set; }
         public string WhsName { get; set; }
@@ -16,10 +21,9 @@ namespace Net.Business.Entities.Sap
         public decimal IsCommited { get; set; }
         public decimal OnOrder { get; set; }
         public decimal Available { get; set; }
+        public decimal PesoArticulo { get; set; }
         public decimal PesoPromedioKg { get; set; }
         public decimal PesoKg { get; set; }
-        public string StatusCode { get; set; }
-        public string StatusName { get; set; }
         public DateTime? FecProduccion { get; set; } = null;
     }
 

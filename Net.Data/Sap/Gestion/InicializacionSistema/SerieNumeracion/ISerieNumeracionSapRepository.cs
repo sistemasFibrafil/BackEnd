@@ -7,5 +7,6 @@ namespace Net.Data.Sap
     public interface ISerieNumeracionSapRepository
     {
         Task<ResultadoTransaccionEntity<SerieNumeracionSapEntity>> GetListByFiltro(FilterRequestEntity value);
+        Task<ResultadoTransaccionEntity<SerieNumeracionSapEntity>> GetNumDocumentoByTipoAndSerie(FilterRequestEntity value);
     }
 }

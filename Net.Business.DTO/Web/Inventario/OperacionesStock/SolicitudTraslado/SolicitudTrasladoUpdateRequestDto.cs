@@ -49,6 +49,7 @@ namespace Net.Business.DTO.Web
                     Line = linea.Line,
                     DocEntry = linea.DocEntry,
                     LineNum = linea.LineNum,
+                    LineStatus = linea.LineStatus,
                     ItemCode = linea.ItemCode,
                     Dscription = linea.Dscription,
                     FromWhsCod = linea.FromWhsCod,
@@ -73,6 +74,7 @@ namespace Net.Business.DTO.Web
         public int Line { get; set; }
         public int DocEntry { get; set; }
         public int LineNum { get; set; }
+        public string LineStatus { get; set; }
         public string ItemCode { get; set; }
         public string Dscription { get; set; }
         public string FromWhsCod { get; set; }

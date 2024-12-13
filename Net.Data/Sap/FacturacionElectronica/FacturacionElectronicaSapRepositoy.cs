@@ -27,6 +27,8 @@ namespace Net.Data.Sap
         const string SP_GET_LIST_GUIA_ELECTRONICA_BY_FILTRO = DB_ESQUEMA + "VEN_GetListGuiaElectronicaByFiltro";
         const string SP_GET_GUIA_ELECTRONICA_BY_ID = DB_ESQUEMA + "VEN_GetGuiaElectronicaById";
         const string SP_GET_LIST_GUIA_DETALLE_ELECTRONICA_BY_ID = DB_ESQUEMA + "VEN_GetListGuiaDetalleElectronicaById";
+        const string SP_SET_UPDATE_GUIA = DB_ESQUEMA + "VEN_SetUpdateGuiaElectronica";
+        const string SP_SET_UPDATE_GUIA_ERROR = DB_ESQUEMA + "VEN_SetUpdateGuiaElectronicaError";
 
         const string SP_GET_LIST_GUIA_INTERNA_ELECTRONICA_BY_FILTRO = DB_ESQUEMA + "INV_GuiaInternaElectronicaByFiltro";
         const string SP_GET_GUIA_INTERNA_ELECTRONICA_BY_ID = DB_ESQUEMA + "INV_GetGuiaInternaElectronicaById";
@@ -64,6 +66,8 @@ namespace Net.Data.Sap
                         cmd.CommandTimeout = 0;
                         cmd.Parameters.Add(new SqlParameter("@FI", value.Dat1));
                         cmd.Parameters.Add(new SqlParameter("@FF", value.Dat2));
+                        cmd.Parameters.Add(new SqlParameter("@ObjType", value.Cod1));
+                        cmd.Parameters.Add(new SqlParameter("@CodStatus", value.Cod2));
                         cmd.Parameters.Add(new SqlParameter("@Filtro1", value.Text1));
                         cmd.Parameters.Add(new SqlParameter("@Filtro2", value.Text2));
 
@@ -90,7 +94,7 @@ namespace Net.Data.Sap
 
             return resultTransaccion;
         }
-        public async Task<ResultadoTransaccionEntity<FacturacionElectronicaSapEntity>> SendGuiaElectronica(FilterRequestEntity value)
+        public async Task<ResultadoTransaccionEntity<FacturacionElectronicaSapEntity>> SetEnviar(FilterRequestEntity value)
         {
             var guia = new Invoice();
             var resultTransaccion = new ResultadoTransaccionEntity<FacturacionElectronicaSapEntity>();
@@ -110,7 +114,8 @@ namespace Net.Data.Sap
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandTimeout = 0;
-                        cmd.Parameters.Add(new SqlParameter("@Id", value.Id1));
+                        cmd.Parameters.Add(new SqlParameter("@ObjType", value.Cod1));
+                        cmd.Parameters.Add(new SqlParameter("@DocEntry", value.Id1));
 
                         using (var reader = await cmd.ExecuteReaderAsync())
                         {
@@ -122,7 +127,8 @@ namespace Net.Data.Sap
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandTimeout = 0;
-                        cmd.Parameters.Add(new SqlParameter("@Id", value.Id1));
+                        cmd.Parameters.Add(new SqlParameter("@ObjType", value.Cod1));
+                        cmd.Parameters.Add(new SqlParameter("@DocEntry", value.Id1));
 
                         using (var reader = await cmd.ExecuteReaderAsync())
                         {
@@ -135,20 +141,22 @@ namespace Net.Data.Sap
 
                     if (responseSend.errors == null)
                     {
-                        //using (SqlCommand cmd = new SqlCommand(SP_FACTURA_ELECTRONICA_UPDATE, conn))
-                        //{
-                        //    cmd.CommandType = CommandType.StoredProcedure;
-                        //    cmd.Parameters.Clear();
-                        //    cmd.Parameters.Add(new SqlParameter("@DocEntry", docEntry));
-                        //    cmd.Parameters.Add(new SqlParameter("@Sunat_Description", responseSend.sunat_description));
-                        //    cmd.Parameters.Add(new SqlParameter("@Sunat_Note", responseSend.sunat_note));
-                        //    cmd.Parameters.Add(new SqlParameter("@Sunat_Responsecode", responseSend.sunat_responsecode));
-                        //    cmd.Parameters.Add(new SqlParameter("@Sunat_Soap_Error", responseSend.sunat_soap_error));
-                        //    cmd.Parameters.Add(new SqlParameter("@Cadena_Para_Codigo_Qr", responseSend.cadena_para_codigo_qr));
-                        //    cmd.Parameters.Add(new SqlParameter("@Codigo_Hash", responseSend.codigo_hash));
+                        using (SqlCommand cmd = new SqlCommand(SP_SET_UPDATE_GUIA, conn))
+                        {
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.Clear();
+                            cmd.Parameters.Add(new SqlParameter("@ObjType", value.Cod1));
+                            cmd.Parameters.Add(new SqlParameter("@DocEntry", value.Id1));
+                            cmd.Parameters.Add(new SqlParameter("@AceptadaPorSunat", responseSend.aceptada_por_sunat));
+                            cmd.Parameters.Add(new SqlParameter("@SunatDescription", responseSend.sunat_description));
+                            cmd.Parameters.Add(new SqlParameter("@SunatNote", responseSend.sunat_note));
+                            cmd.Parameters.Add(new SqlParameter("@SunatResponsecode", responseSend.sunat_responsecode));
+                            cmd.Parameters.Add(new SqlParameter("@SunatSoapError", responseSend.sunat_soap_error));
+                            cmd.Parameters.Add(new SqlParameter("@CadenaParaCodigoQr", responseSend.cadena_para_codigo_qr));
+                            cmd.Parameters.Add(new SqlParameter("@CodigoHash", responseSend.codigo_hash));
 
-                        //    await cmd.ExecuteNonQueryAsync();
-                        //}
+                            await cmd.ExecuteNonQueryAsync();
+                        }
 
                         resultTransaccion.IdRegistro = 0;
                         resultTransaccion.ResultadoCodigo = 0;
@@ -156,15 +164,16 @@ namespace Net.Data.Sap
                     }
                     else
                     {
-                        //using (SqlCommand cmd = new SqlCommand(SP_FACTURA_ELECTRONICA_ERROR_UPDATE, conn))
-                        //{
-                        //    cmd.CommandType = CommandType.StoredProcedure;
-                        //    cmd.Parameters.Clear();
-                        //    cmd.Parameters.Add(new SqlParameter("@DocEntry", docEntry));
-                        //    cmd.Parameters.Add(new SqlParameter("@Error", leer_respuesta.errors));
+                        using (SqlCommand cmd = new SqlCommand(SP_SET_UPDATE_GUIA_ERROR, conn))
+                        {
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.Parameters.Clear();
+                            cmd.Parameters.Add(new SqlParameter("@ObjType", value.Cod1));
+                            cmd.Parameters.Add(new SqlParameter("@DocEntry", value.Id1));
+                            cmd.Parameters.Add(new SqlParameter("@Error", responseSend.errors));
 
-                        //    await cmd.ExecuteNonQueryAsync();
-                        //}
+                            await cmd.ExecuteNonQueryAsync();
+                        }
 
                         resultTransaccion.IdRegistro = -1;
                         resultTransaccion.ResultadoCodigo = -1;
@@ -182,7 +191,6 @@ namespace Net.Data.Sap
             }
             return resultTransaccion;
         }
-
 
         public async Task<ResultadoTransaccionEntity<FacturacionElectronicaSapEntity>> GetListGuiaInternaElectronicaByFiltro(FilterRequestEntity value)
         {

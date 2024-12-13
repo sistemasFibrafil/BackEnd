@@ -194,17 +194,17 @@ namespace Net.Data.Web
 
                         try
                         {
-                            using (SqlCommand cmdItem = new SqlCommand(SP_SET_CREATE, conn))
+                            using (SqlCommand cmd = new SqlCommand(SP_SET_CREATE, conn))
                             {
-                                cmdItem.CommandType = CommandType.StoredProcedure;
-                                cmdItem.CommandTimeout = 0;
-                                cmdItem.Parameters.Add(new SqlParameter("@BaseType", value.BaseType));
-                                cmdItem.Parameters.Add(new SqlParameter("@BaseEntry", value.BaseEntry));
-                                cmdItem.Parameters.Add(new SqlParameter("@FromWhsCod", value.FromWhsCod));
-                                cmdItem.Parameters.Add(new SqlParameter("@Barcode", value.Barcode));
-                                cmdItem.Parameters.Add(new SqlParameter("@IdUsuarioCreate", value.IdUsuarioCreate));
+                                cmd.CommandType = CommandType.StoredProcedure;
+                                cmd.CommandTimeout = 0;
+                                cmd.Parameters.Add(new SqlParameter("@BaseType", value.BaseType));
+                                cmd.Parameters.Add(new SqlParameter("@BaseEntry", value.BaseEntry));
+                                cmd.Parameters.Add(new SqlParameter("@FromWhsCod", value.FromWhsCod));
+                                cmd.Parameters.Add(new SqlParameter("@Barcode", value.Barcode));
+                                cmd.Parameters.Add(new SqlParameter("@IdUsuarioCreate", value.IdUsuarioCreate));
 
-                                await cmdItem.ExecuteNonQueryAsync();
+                                await cmd.ExecuteNonQueryAsync();
                             }
 
                             resultTransaccion.IdRegistro = 0;
@@ -364,8 +364,8 @@ namespace Net.Data.Web
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandTimeout = 0;
-                        cmd.Parameters.Add(new SqlParameter("@IdBase", value.IdBase));
                         cmd.Parameters.Add(new SqlParameter("@BaseType", value.BaseType));
+                        cmd.Parameters.Add(new SqlParameter("@IdBase", value.IdBase));
 
                         using (var reader = await cmd.ExecuteReaderAsync())
                         {
@@ -381,9 +381,9 @@ namespace Net.Data.Web
                         foreach (var linea in value.Linea)
                         {
                             cmd.Parameters.Clear();
+                            cmd.Parameters.Add(new SqlParameter("@BaseType", linea.BaseType));
                             cmd.Parameters.Add(new SqlParameter("@IdBase", linea.IdBase));
                             cmd.Parameters.Add(new SqlParameter("@LineBase", linea.LineBase));
-                            cmd.Parameters.Add(new SqlParameter("@BaseType", linea.BaseType));
                             cmd.Parameters.Add(new SqlParameter("@Return", linea.Return));
 
                             var lista = new List<LecturaCopyToTransferenciaDetalleEntity>();

@@ -99,7 +99,7 @@ namespace Net.Business.Services.Controllers.Web.Inventario.OperacionesStock
         {
             if (value == null)
             {
-                return BadRequest("No hay registros a crear ..!");
+                return BadRequest("No hay registros a actualizar ..!");
             }
 
             if (!ModelState.IsValid)
@@ -124,7 +124,7 @@ namespace Net.Business.Services.Controllers.Web.Inventario.OperacionesStock
         {
             if (value == null)
             {
-                return BadRequest("No hay registros a crear ..!");
+                return BadRequest("No hay registros a cerrar ..!");
             }
 
             if (!ModelState.IsValid)

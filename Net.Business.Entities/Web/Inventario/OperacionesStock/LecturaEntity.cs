@@ -80,8 +80,6 @@ namespace Net.Business.Entities.Web
         public int SlpCode { get; set; }
         public string JrnlMemo { get; set; }
         public string Comments { get; set; }
-        public int? IdUsuarioCreate { get; set; } = null;
-        public int? IdUsuarioUpdate { get; set; } = null;
         public List<LecturaCopyToTransferenciaDetalleEntity> Linea { get; set; } = new List<LecturaCopyToTransferenciaDetalleEntity>();
     }
 
@@ -93,10 +91,13 @@ namespace Net.Business.Entities.Web
         public string BaseType { get; set; } 
         public int BaseEntry { get; set; }
         public int BaseLine { get; set; }
+        public string Return { get; set; }
         public string ItemCode { get; set; }
         public string Dscription { get; set; }
+        public string Barcode { get; set; }
         public string FromWhsCod { get; set; }
         public string WhsCode { get; set; }
+        public string CodTipOperacion { get; set; }
         public string UnitMsr { get; set; }
         public decimal Quantity { get; set; }
         public decimal OpenQty { get; set; }

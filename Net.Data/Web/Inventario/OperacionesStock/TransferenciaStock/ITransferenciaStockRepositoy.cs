@@ -1,14 +1,14 @@
-﻿using Net.Business.Entities.Web;
-using Net.Business.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using Net.Business.Entities;
 using System.Threading.Tasks;
+using Net.Business.Entities.Web;
 namespace Net.Data.Web
 {
     public interface ITransferenciaStockRepositoy
     {
-        Task<ResultadoTransaccionEntity<TransferenciaStockRepositoy>> GetNumber();
+        Task<ResultadoTransaccionEntity<TransferenciaStockEntity>> GetNumber();
+        Task<ResultadoTransaccionEntity<TransferenciaStockEntity>> GetListByFiltro(FilterRequestEntity value);
+        Task<ResultadoTransaccionEntity<TransferenciaStockEntity>> GetById(int id);
+        Task<ResultadoTransaccionEntity<TransferenciaStockEntity>> SetCreate(TransferenciaStockEntity value);
+        Task<ResultadoTransaccionEntity<TransferenciaStockEntity>> SetUpdate(TransferenciaStockEntity value);
     }
 }

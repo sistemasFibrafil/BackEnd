@@ -6,6 +6,7 @@ namespace Net.Business.Entities.Web
     {
         public int Id { get; set; }
         public string Number { get; set; } = null;
+        public string ObjType { get; set; } = "1250000001";
         public int DocEntry { get; set; } = 0;
         public int DocNum { get; set; } = 0;
         public string DocStatus { get; set; } = null;
@@ -36,6 +37,7 @@ namespace Net.Business.Entities.Web
     {
         public int Id { get; set; }
         public int Line { get; set; }
+        public string ObjType { get; set; } = "1250000001";
         public int DocEntry { get; set; }
         public int LineNum { get; set; }
         public string LineStatus { get; set; }

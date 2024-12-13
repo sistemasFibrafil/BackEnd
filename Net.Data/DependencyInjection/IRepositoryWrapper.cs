@@ -1,5 +1,6 @@
 ﻿using Net.Data.Sap;
 using Net.Data.Web;
+using Net.Data.Web.Ventas.PickingList;
 namespace Net.Data
 {
     public interface IRepositoryWrapper
@@ -28,6 +29,7 @@ namespace Net.Data
         /// GESTION
         /// </summary>
         ISedeRepository Sede { get; }
+        IStatusRepository Status { get; }
         IFormularioRepository Formulario { get; }
         ITipoDocumentoRepository TipoDocumento { get; }
         ISerieNumeracionRepository SerieNumeracion { get; }
@@ -38,6 +40,13 @@ namespace Net.Data
         ILecturaRepository Lectura { get; }
         IDocumentoLecturaRepository DocumentoLectura { get; }
         ISolicitudTrasladoRepository SolicitudTraslado { get; }
+        ITransferenciaStockRepositoy TransferenciaStock { get; }
+
+        /// <summary>
+        /// VENTAS
+        /// </summary>
+        IPickingListRepository PickingList { get; }
+        IOrdenVentaSodimacRepository OrdenVentaSodimac { get; }
 
 
 
@@ -61,6 +70,7 @@ namespace Net.Data
         ITipoCambioSapRepository TipoCambioSap { get; }
         IEmpleadoVentaSapRepository EmpleadoVentaSap { get; }
         IGrupoArticuloSapRepository GrupoArticuloSap { get; }
+        ITipoOperacionSapRepository TipoOperacionSap { get; }
         ICondidcionPagoSapRepository CondidcionPagoSap { get; }
         ISerieNumeracionSapRepository SerieNumeracionSap { get; }
         ISubGrupoArticuloSapRepository SubGrupoArticuloSap { get; }
@@ -74,6 +84,7 @@ namespace Net.Data
         /// </summary>
         IArticuloSapRepository ArticuloSap { get; }
         IDocumentoLecturaSapRepository DocumentoLecturaSap { get; }
+        ITransferenciaStockSapRepositoy TransferenciaStockSap { get; }
 
         /// <summary>
         /// SOCIOS DE NEGOCIOS

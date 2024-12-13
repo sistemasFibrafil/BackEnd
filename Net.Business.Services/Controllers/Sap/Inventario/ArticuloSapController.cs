@@ -195,6 +195,41 @@ namespace Net.Business.Services.Controllers.Sap.Inventario
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetListArticuloByGrupoSubGrupoFiltro([FromQuery] FilterRequestDto value)
+        {
+            var objectGetAll = await _repository.ArticuloSap.GetListArticuloByGrupoSubGrupoFiltro(value.ReturnValue());
+
+            if (objectGetAll.ResultadoCodigo == -1)
+            {
+                return BadRequest(objectGetAll);
+            }
+
+            return Ok(objectGetAll.dataList);
+        }
+
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetListArticuloExcelByGrupoSubGrupoFiltro([FromQuery] FilterRequestDto value)
+        {
+            try
+            {
+                var objectGetAll = await _repository.ArticuloSap.GetListArticuloExcelByGrupoSubGrupoFiltro(value.ReturnValue());
+
+                objectGetAll.data.Seek(0, SeekOrigin.Begin);
+                var file = objectGetAll.data.ToArray();
+
+                return new FileContentResult(file, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+            }
+            catch (Exception ex)
+            {
+                return NotFound(ex.Message);
+            }
+        }
+
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetListMovimientoStockByFechaSede([FromQuery] FilterRequestDto value)
         {
             var objectGetAll = await _repository.ArticuloSap.GetListMovimientoStockByFechaSede(value.ReturnValue());
