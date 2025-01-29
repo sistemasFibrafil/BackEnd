@@ -13,7 +13,6 @@ using Net.Business.Entities.Sap;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
-using DocumentFormat.OpenXml.Office2010.Word;
 namespace Net.Data.Web
 {
     public class SolicitudTrasladoRepository : RepositoryBase<SolicitudTrasladoEntity>, ISolicitudTrasladoRepository
@@ -33,6 +32,9 @@ namespace Net.Data.Web
         const string SP_GET_BY_ID = DB_ESQUEMA + "INV_GetSolicitudTrasladoById";
         const string SP_GET_LIST_DETALLE_BY_ID = DB_ESQUEMA + "INV_GetSolicitudTrasladoDetalleById";
         const string SP_GET_LIST_FILTRO = DB_ESQUEMA + "INV_GetListSolicitudTrasladoByFiltro";
+
+        const string SP_GET_TO_TRANSFERENCIA = DB_ESQUEMA + "INV_GetSolicitudTrasladoToTransferencia";
+        const string SP_GET_LIST_DETALLE_TO_TRANSFERENCIA = DB_ESQUEMA + "INV_GetSolicitudTrasladoDetalleToTransferencia";
 
         const string SP_SET_CREATE = DB_ESQUEMA + "INV_SetSolicitudTrasladoCreate";
         const string SP_SET_DETALLE_CREATE = DB_ESQUEMA + "INV_SetSolicitudTrasladoDetalleCreate";
@@ -197,9 +199,64 @@ namespace Net.Data.Web
 
             return resultTransaccion;
         }
+        public async Task<ResultadoTransaccionEntity<SolicitudTrasladoToTransferenciaEntity>> GetSolicitudTrasladoToTransferencia(int id)
+        {
+            var response = new SolicitudTrasladoToTransferenciaEntity();
+            var resultTransaccion = new ResultadoTransaccionEntity<SolicitudTrasladoToTransferenciaEntity>();
+
+            _metodoName = regex.Match(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name).Groups[1].Value.ToString();
+
+            resultTransaccion.NombreMetodo = _metodoName;
+            resultTransaccion.NombreAplicacion = _aplicacionName;
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(context.GetConnectionSQL()))
+                {
+                    conn.Open();
+
+                    using (SqlCommand cmd = new SqlCommand(SP_GET_TO_TRANSFERENCIA, conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandTimeout = 0;
+                        cmd.Parameters.Add(new SqlParameter("@Id", id));
+
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            response = context.Convert<SolicitudTrasladoToTransferenciaEntity>(reader);
+                        }
+                    }
+
+                    using (SqlCommand cmd = new SqlCommand(SP_GET_LIST_DETALLE_TO_TRANSFERENCIA, conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandTimeout = 0;
+                        cmd.Parameters.Add(new SqlParameter("@Id", id));
+
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            response.Linea = (List<SolicitudTrasladoDetalleToTransferenciaEntity>)context.ConvertTo<SolicitudTrasladoDetalleToTransferenciaEntity>(reader);
+                        }
+                    }
+
+                    resultTransaccion.IdRegistro = 0;
+                    resultTransaccion.ResultadoCodigo = 0;
+                    resultTransaccion.ResultadoDescripcion = "Datos obtenidos con éxito ..!";
+                    resultTransaccion.data = response;
+                }
+            }
+            catch (Exception ex)
+            {
+                resultTransaccion.IdRegistro = -1;
+                resultTransaccion.ResultadoCodigo = -1;
+                resultTransaccion.ResultadoDescripcion = ex.Message.ToString();
+            }
+
+            return resultTransaccion;
+        }
         public async Task<ResultadoTransaccionEntity<SolicitudTrasladoEntity>> SetCreate(SolicitudTrasladoEntity value)
         {
-            var con = -1;
+            //var con = -1;
             var responde = new SolicitudTrasladoSapEntity();
             var resultTransaccion = new ResultadoTransaccionEntity<SolicitudTrasladoEntity>();
 
@@ -217,10 +274,11 @@ namespace Net.Data.Web
                         await conn.OpenAsync();
                         conn.EnlistTransaction(transaction);
 
-                        while (con != 0)
-                        {
-                            con = _connectionSap.ConnectToCompany(_cnnDiApiSap);
-                        }
+                        //while (con != 0)
+                        //{
+                        //    con = _connectionSap.ConnectToCompany(_cnnDiApiSap);
+                        //}
+                        _connectionSap.ConnectToCompany(_cnnDiApiSap);
                         if (RepositoryBaseSap.oCompany is not null)
                         {
                             if (RepositoryBaseSap.oCompany.InTransaction)
@@ -246,6 +304,7 @@ namespace Net.Data.Web
                                 cmd.Parameters.Add(new SqlParameter("@DocDate", value.DocDate));
                                 cmd.Parameters.Add(new SqlParameter("@DocDueDate", value.DocDueDate));
                                 cmd.Parameters.Add(new SqlParameter("@TaxDate", value.TaxDate));
+                                cmd.Parameters.Add(new SqlParameter("@Read", value.Read));
                                 // CLIENTE
                                 cmd.Parameters.Add(new SqlParameter("@CardCode", value.CardCode));
                                 cmd.Parameters.Add(new SqlParameter("@CardName", value.CardName));
@@ -527,6 +586,13 @@ namespace Net.Data.Web
                         conn.EnlistTransaction(transaction);
 
                         _connectionSap.ConnectToCompany(_cnnDiApiSap);
+                        if (RepositoryBaseSap.oCompany is not null)
+                        {
+                            if (RepositoryBaseSap.oCompany.InTransaction)
+                            {
+                                RepositoryBaseSap.oCompany.EndTransaction(BoWfTransOpt.wf_RollBack);
+                            }
+                        }
                         RepositoryBaseSap.oCompany.StartTransaction();
 
                         StockTransfer documentUpd = RepositoryBaseSap.oCompany.GetBusinessObject(BoObjectTypes.oInventoryTransferRequest);
@@ -545,6 +611,7 @@ namespace Net.Data.Web
                                 cmd.Parameters.Add(new SqlParameter("@DocDate", value.DocDate));
                                 cmd.Parameters.Add(new SqlParameter("@DocDueDate", value.DocDueDate));
                                 cmd.Parameters.Add(new SqlParameter("@TaxDate", value.TaxDate));
+                                cmd.Parameters.Add(new SqlParameter("@Read", value.Read));
                                 // SOCIO DE NEGOCIOS
                                 // ALMACÉN
                                 cmd.Parameters.Add(new SqlParameter("@Filler", value.Filler));

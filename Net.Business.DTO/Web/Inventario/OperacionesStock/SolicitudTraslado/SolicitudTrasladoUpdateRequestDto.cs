@@ -10,6 +10,7 @@ namespace Net.Business.DTO.Web
         public DateTime DocDate { get; set; }
         public DateTime DocDueDate { get; set; }
         public DateTime TaxDate { get; set; }
+        public string Read { get; set; }
         public string Filler { get; set; }
         public string ToWhsCode { get; set; }
         public string CodTipTraslado { get; set; }
@@ -30,6 +31,7 @@ namespace Net.Business.DTO.Web
                 DocDate = DocDate,
                 DocDueDate = DocDueDate,
                 TaxDate = TaxDate,
+                Read = Read,
                 Filler = Filler,
                 ToWhsCode = ToWhsCode,
                 CodTipTraslado = CodTipTraslado,

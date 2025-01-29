@@ -66,6 +66,22 @@ namespace Net.Business.Services.Controllers.Web.Inventario.OperacionesStock
             return Ok(response.data);
         }
 
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
+        public async Task<IActionResult> GetSolicitudTrasladoToTransferencia(int id)
+        {
+            var response = await _repository.SolicitudTraslado.GetSolicitudTrasladoToTransferencia(id);
+
+            if (response.ResultadoCodigo == -1)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response.data);
+        }
+
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]

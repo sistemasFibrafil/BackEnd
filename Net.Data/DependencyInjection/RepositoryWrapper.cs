@@ -98,7 +98,8 @@ namespace Net.Data
         /// </summary>
         private IArticuloSapRepository _articuloSap;
         private IDocumentoLecturaSapRepository _documentoLecturaSap;
-        private ITransferenciaStockSapRepositoy _transferenciaStockSap;
+        private ISolicitudTrasladoSapRepository _solicitudTrasladoSap;
+        private ITransferenciaStockSapRepository _transferenciaStockSap;
 
         /// <summary>
         /// SOCIOS DE NEGOCIOS
@@ -623,13 +624,24 @@ namespace Net.Data
                 return _documentoLecturaSap;
             }
         }
-        public ITransferenciaStockSapRepositoy TransferenciaStockSap
+        public ISolicitudTrasladoSapRepository SolicitudTrasladoSap
+        {
+            get
+            {
+                if (_solicitudTrasladoSap == null)
+                {
+                    _solicitudTrasladoSap = new SolicitudTrasladoSapRepository(_repoContext, _configuration);
+                }
+                return _solicitudTrasladoSap;
+            }
+        }
+        public ITransferenciaStockSapRepository TransferenciaStockSap
         {
             get
             {
                 if (_transferenciaStockSap == null)
                 {
-                    _transferenciaStockSap = new TransferenciaStockSapRepositoy(_repoContext, _configuration);
+                    _transferenciaStockSap = new TransferenciaStockSapRepository(_repoContext, _configuration);
                 }
                 return _transferenciaStockSap;
             }

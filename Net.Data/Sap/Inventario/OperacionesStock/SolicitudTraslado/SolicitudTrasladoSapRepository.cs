@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 namespace Net.Data.Sap
 {
-    public class TransferenciaStockSapRepositoy : RepositoryBase<TransferenciaStockSapEntity>, ITransferenciaStockSapRepositoy
+    partial class SolicitudTrasladoSapRepository : RepositoryBase<SolicitudTrasladoSapEntity>, ISolicitudTrasladoSapRepository
     {
         private string _metodoName;
         private string _aplicacionName;
@@ -24,11 +24,11 @@ namespace Net.Data.Sap
 
         // STORED PROCEDURE
         const string DB_ESQUEMA = "";
-        const string SP_GET_TRANSFERENCIASTOCK_BY_DOCENTRY = DB_ESQUEMA + "INV_GetTransferenciaStockByDocEntry";
-        const string SP_GET_LIST_TRANSFERENCIASTOCK_DETALLE_BY_DOCENTRY = DB_ESQUEMA + "INV_GetListTransferenciaStockDetalleByDocEntry";
+        const string SP_GET_SOLICITUDTRASLADO_BY_DOCENTRY = DB_ESQUEMA + "INV_GetSolicitudTrasladoByDocEntry";
+        const string SP_GET_LIST_SOLICITUDTRASLADO_DETALLE_BY_DOCENTRY = DB_ESQUEMA + "INV_GetListSolicitudTrasladoDetalleByDocEntry";
 
 
-        public TransferenciaStockSapRepositoy(IConnectionSQL context, IConfiguration configuration)
+        public SolicitudTrasladoSapRepository(IConnectionSQL context, IConfiguration configuration)
             : base(context)
         {
             _configuration = configuration;
@@ -38,10 +38,10 @@ namespace Net.Data.Sap
 
 
 
-        public async Task<ResultadoTransaccionEntity<MemoryStream>> GetTransferenciaStockPdfByDocEntry(int id)
+        public async Task<ResultadoTransaccionEntity<MemoryStream>> GetSolicitudTrasladoPdfByDocEntry(int id)
         {
-            var header = new TransferenciaStockQrySapEntity();
-            var linea = new List<TransferenciaStockDetalleQrySapEntity>();
+            var header = new SolicitudTrasladoQrySapEntity();
+            var linea = new List<SolicitudTrasladoDetalleQrySapEntity>();
             var resultTransaccion = new ResultadoTransaccionEntity<MemoryStream>();
 
             _metodoName = regex.Match(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name).Groups[1].Value.ToString();
@@ -55,7 +55,7 @@ namespace Net.Data.Sap
                 {
                     conn.Open();
 
-                    using (SqlCommand cmd = new SqlCommand(SP_GET_TRANSFERENCIASTOCK_BY_DOCENTRY, conn))
+                    using (SqlCommand cmd = new SqlCommand(SP_GET_SOLICITUDTRASLADO_BY_DOCENTRY, conn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandTimeout = 0;
@@ -63,7 +63,7 @@ namespace Net.Data.Sap
 
                         using (var reader = await cmd.ExecuteReaderAsync())
                         {
-                            header = context.Convert<TransferenciaStockQrySapEntity>(reader);
+                            header = context.Convert<SolicitudTrasladoQrySapEntity>(reader);
                         }
                     }
 
@@ -74,8 +74,8 @@ namespace Net.Data.Sap
                     iTextSharp.text.pdf.PdfWriter write = iTextSharp.text.pdf.PdfWriter.GetInstance(doc, ms);
                     write.ViewerPreferences = iTextSharp.text.pdf.PdfWriter.PageModeUseOutlines;
                     // Our custom Header and Footer is done using Event Handler
-                    var pageEventHelperTransferencia = new PageEventHelperTransferencia();
-                    write.PageEvent = pageEventHelperTransferencia;
+                    var pageEventHelperSolicitudTraslado = new PageEventHelperSolicitudTraslado();
+                    write.PageEvent = pageEventHelperSolicitudTraslado;
 
                     // Colocamos la fuente que deseamos que tenga el documento
                     iTextSharp.text.pdf.BaseFont helvetica = iTextSharp.text.pdf.BaseFont.CreateFont(iTextSharp.text.pdf.BaseFont.HELVETICA, iTextSharp.text.pdf.BaseFont.CP1250, true);
@@ -88,18 +88,18 @@ namespace Net.Data.Sap
                     iTextSharp.text.Font parrafoNegrita = new iTextSharp.text.Font(helvetica, 6.5f, iTextSharp.text.Font.BOLD, iTextSharp.text.BaseColor.Black);
 
                     // Define the page header
-                    pageEventHelperTransferencia.Title = header.Title;
-                    pageEventHelperTransferencia.SubTitle = header.SubTitle;
-                    pageEventHelperTransferencia.Codigo = header.Codigo;
-                    pageEventHelperTransferencia.Version = header.Version;
-                    pageEventHelperTransferencia.Vigencia = header.Vigencia;
+                    pageEventHelperSolicitudTraslado.Title = header.Title;
+                    pageEventHelperSolicitudTraslado.SubTitle = header.SubTitle;
+                    pageEventHelperSolicitudTraslado.Codigo = header.Codigo;
+                    pageEventHelperSolicitudTraslado.Version = header.Version;
+                    pageEventHelperSolicitudTraslado.Vigencia = header.Vigencia;
 
                     doc.Open();
 
 
                     //============================
                     //TABLA: 1
-                    var tbl = new iTextSharp.text.pdf.PdfPTable(new float[] { 25f, 25f, 25f, 25f }) { WidthPercentage = 100 };
+                    var tbl = new iTextSharp.text.pdf.PdfPTable(new float[] { 20f, 20f, 20f, 20f, 20f }) { WidthPercentage = 100 };
                     //COLUMNAS
                     var c1 = new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("Fecha: " + header.TaxDate.ToString("dd/MM/yyyy"), parrafoHerderNegrita));
                     c1.BorderWidth = 0;
@@ -110,11 +110,19 @@ namespace Net.Data.Sap
                     c1.BorderWidth = 0;
                     c1.PaddingTop = 12;
                     c1.PaddingBottom = 20;
+                    c1.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
                     tbl.AddCell(c1);
                     c1 = new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("Sede Destino: " + header.SedeDestino, parrafoHerderNegrita));
                     c1.BorderWidth = 0;
                     c1.PaddingTop = 12;
                     c1.PaddingBottom = 20;
+                    c1.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
+                    tbl.AddCell(c1);
+                    c1 = new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("Tipo: " + header.TipoTraslado, parrafoHerderNegrita));
+                    c1.BorderWidth = 0;
+                    c1.PaddingTop = 12;
+                    c1.PaddingBottom = 20;
+                    c1.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
                     tbl.AddCell(c1);
                     c1 = new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("# SAP: " + header.DocNum.ToString(), parrafoHerderNegrita));
                     c1.BorderWidth = 0;
@@ -126,7 +134,7 @@ namespace Net.Data.Sap
                     doc.Add(tbl);
 
 
-                    using (SqlCommand cmd = new SqlCommand(SP_GET_LIST_TRANSFERENCIASTOCK_DETALLE_BY_DOCENTRY, conn))
+                    using (SqlCommand cmd = new SqlCommand(SP_GET_LIST_SOLICITUDTRASLADO_DETALLE_BY_DOCENTRY, conn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandTimeout = 0;
@@ -134,75 +142,51 @@ namespace Net.Data.Sap
 
                         using (var reader = await cmd.ExecuteReaderAsync())
                         {
-                            linea = (List<TransferenciaStockDetalleQrySapEntity>)context.ConvertTo<TransferenciaStockDetalleQrySapEntity>(reader);
+                            linea = (List<SolicitudTrasladoDetalleQrySapEntity>)context.ConvertTo<SolicitudTrasladoDetalleQrySapEntity>(reader);
                         }
                     }
 
                     //============================
                     //TABLA: 2 - Cabecera del deatalle
-                    tbl = new iTextSharp.text.pdf.PdfPTable(new float[] { 5f, 3f, 16f, 59f, 6f, 6f, 5f }) { WidthPercentage = 100 };
-                    c1 = new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("# SOL", parrafoHeaderDeatailNegrita));
-                    c1.BorderWidth = 1;
-                    c1.PaddingTop = 5;
-                    c1.PaddingBottom = 7;
-                    c1.BackgroundColor = new iTextSharp.text.BaseColor(151, 154, 154);
-                    c1.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
-                    tbl.AddCell(c1);
-                    c1 = new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("TIPO", parrafoHeaderDeatailNegrita));
-                    c1.BorderWidth = 1;
-                    c1.PaddingTop = 5;
-                    c1.PaddingBottom = 7;
-                    c1.BackgroundColor = new iTextSharp.text.BaseColor(151, 154, 154);
-                    c1.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
-                    tbl.AddCell(c1);
+                    tbl = new iTextSharp.text.pdf.PdfPTable(new float[] { 16f, 67f, 6f, 6f, 5f }) { WidthPercentage = 100 };
                     c1 = new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("ITEM CODE", parrafoHeaderDeatailNegrita));
                     c1.BorderWidth = 1;
                     c1.PaddingTop = 5;
                     c1.PaddingBottom = 7;
-                    c1.BackgroundColor = new iTextSharp.text.BaseColor(151, 154, 154);
+                    c1.BackgroundColor = new iTextSharp.text.BaseColor(255, 165, 122);
                     c1.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
                     tbl.AddCell(c1);
                     c1 = new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("ITEM NAME", parrafoHeaderDeatailNegrita));
                     c1.BorderWidth = 1;
                     c1.PaddingTop = 5;
                     c1.PaddingBottom = 7;
-                    c1.BackgroundColor = new iTextSharp.text.BaseColor(151, 154, 154);
+                    c1.BackgroundColor = new iTextSharp.text.BaseColor(255, 165, 122);
                     c1.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
                     tbl.AddCell(c1);
                     c1 = new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("ALMACEN O.", parrafoHeaderDeatailNegrita));
                     c1.BorderWidth = 1;
                     c1.PaddingTop = 5;
                     c1.PaddingBottom = 7;
-                    c1.BackgroundColor = new iTextSharp.text.BaseColor(151, 154, 154);
+                    c1.BackgroundColor = new iTextSharp.text.BaseColor(255, 165, 122);
                     c1.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
                     tbl.AddCell(c1);
                     c1 = new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("ALMACEN D.", parrafoHeaderDeatailNegrita));
                     c1.BorderWidth = 1;
                     c1.PaddingTop = 5;
                     c1.PaddingBottom = 7;
-                    c1.BackgroundColor = new iTextSharp.text.BaseColor(151, 154, 154);
+                    c1.BackgroundColor = new iTextSharp.text.BaseColor(255, 165, 122);
                     c1.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
                     tbl.AddCell(c1);
                     c1 = new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("CANTIDAD", parrafoHeaderDeatailNegrita));
                     c1.BorderWidth = 1;
                     c1.PaddingTop = 5;
                     c1.PaddingBottom = 7;
-                    c1.BackgroundColor = new iTextSharp.text.BaseColor(151, 154, 154);
+                    c1.BackgroundColor = new iTextSharp.text.BaseColor(255, 165, 122);
                     c1.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
                     tbl.AddCell(c1);
 
                     foreach (var item in linea)
                     {
-                        c1 = new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase(item.NumSolicitud.ToString(), parrafoDetail));
-                        c1.BorderWidth = 1;
-                        c1.PaddingBottom = 4;
-                        c1.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
-                        tbl.AddCell(c1);
-                        c1 = new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase(item.TipoTraslado, parrafoDetail));
-                        c1.BorderWidth = 1;
-                        c1.PaddingBottom = 4;
-                        c1.HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER;
-                        tbl.AddCell(c1);
                         c1 = new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase(item.ItemCode, parrafoDetail));
                         c1.BorderWidth = 1;
                         c1.PaddingBottom = 4;
@@ -366,7 +350,7 @@ namespace Net.Data.Sap
 
 
 
-    public class PageEventHelperTransferencia : iTextSharp.text.pdf.PdfPageEventHelper
+    public class PageEventHelperSolicitudTraslado : iTextSharp.text.pdf.PdfPageEventHelper
     {
         iTextSharp.text.pdf.PdfContentByte cb;
         iTextSharp.text.pdf.PdfTemplate headerTemplate, footerTemplate;
@@ -511,9 +495,9 @@ namespace Net.Data.Sap
                 tbl.TotalWidth = pageSize.Width - 18;
 
                 // LINEA 1
-                var c1 = new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("", parrafoNormal)) { BorderWidthBottom = 0, BorderWidth = 1,PaddingTop = 5, PaddingBottom = 5 };
+                var c1 = new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("", parrafoNormal)) { BorderWidthBottom = 0, BorderWidth = 1, PaddingTop = 5, PaddingBottom = 5 };
                 tbl.AddCell(c1);
-                c1 = new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase(Title, parrafoTitulo)) { BorderWidthLeft = 0, BorderWidthRight = 0,BorderWidthBottom = 0, BorderWidth = 1, PaddingTop = 5, PaddingBottom = 5, HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER, BackgroundColor = new iTextSharp.text.BaseColor(151, 154, 154) };
+                c1 = new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase(Title, parrafoTitulo)) { BorderWidthLeft = 0, BorderWidthRight = 0, BorderWidthBottom = 0, BorderWidth = 1, PaddingTop = 5, PaddingBottom = 5, HorizontalAlignment = iTextSharp.text.Element.ALIGN_CENTER, BackgroundColor = new iTextSharp.text.BaseColor(255, 103, 43) };
                 tbl.AddCell(c1);
                 c1 = new iTextSharp.text.pdf.PdfPCell(new iTextSharp.text.Phrase("", parrafoNormal)) { BorderWidthBottom = 0, BorderWidth = 1, PaddingTop = 5, PaddingBottom = 5 };
                 tbl.AddCell(c1);

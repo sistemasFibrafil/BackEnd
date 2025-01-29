@@ -11,5 +11,6 @@ namespace Net.Data.Web
         Task<ResultadoTransaccionEntity<SolicitudTrasladoEntity>> SetCreate(SolicitudTrasladoEntity value);
         Task<ResultadoTransaccionEntity<SolicitudTrasladoEntity>> SetUpdate(SolicitudTrasladoEntity value);
         Task<ResultadoTransaccionEntity<SolicitudTrasladoEntity>> SetClose(SolicitudTrasladoEntity value);
+        Task<ResultadoTransaccionEntity<SolicitudTrasladoToTransferenciaEntity>> GetSolicitudTrasladoToTransferencia(int id);
     }
 }

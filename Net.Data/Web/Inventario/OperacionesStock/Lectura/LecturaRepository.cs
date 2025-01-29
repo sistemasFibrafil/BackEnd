@@ -8,7 +8,6 @@ using Microsoft.Data.SqlClient;
 using Net.Business.Entities.Web;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using DocumentFormat.OpenXml.Office2010.Excel;
 namespace Net.Data.Web
 {
     public class LecturaRepository : RepositoryBase<LecturaEntity>, ILecturaRepository
@@ -21,7 +20,8 @@ namespace Net.Data.Web
         const string DB_ESQUEMA = "";
         const string SP_GET_LIST_BY_FILTRO = DB_ESQUEMA + "INV_GetListLecturaByFiltro";
         const string SP_GET_LIST_BY_BASETYPE_AND_BASEENTRY = DB_ESQUEMA + "INV_GetListLecturaByBaseTypeBaseEntry";
-        const string SP_GET_LIST_BY_BASETYPE_AND_BASEENTRY_AND_FILTRO = DB_ESQUEMA + "INV_GetListLecturaByBaseTypeAndBaseEntryAndFiltro";
+        const string SP_GET_LIST_BY_BASETYPE_BASEENTRY_BASELINE_FILTRO = DB_ESQUEMA + "INV_GetListLecturaByBaseTypeBaseEntryBaseLineFiltro";
+        const string SP_GET_LIST_BY_TARGETTYPE_TRGETENTRY_TRGETLINE_FILTRO = DB_ESQUEMA + "INV_GetListLecturaByTargetTypeTrgetEntryTrgetLineFiltro";
 
         const string SP_SET_CREATE = DB_ESQUEMA + "INV_SetLecturaCreate";
         const string SP_SET_DELETE1 = DB_ESQUEMA + "INV_SetLecturaDeleteMassive";   
@@ -84,10 +84,10 @@ namespace Net.Data.Web
             return resultTransaccion;
         }
 
-        public async Task<ResultadoTransaccionEntity<LecturaByBaseTypeAndBaseEntryEntity>> GetListByBaseTypeAndBaseEntry(FilterRequestEntity value)
+        public async Task<ResultadoTransaccionEntity<LecturaEntity>> GetListByBaseTypeAndBaseEntry(FilterRequestEntity value)
         {
-            var response = new List<LecturaByBaseTypeAndBaseEntryEntity>();
-            var resultTransaccion = new ResultadoTransaccionEntity<LecturaByBaseTypeAndBaseEntryEntity>();
+            var response = new List<LecturaEntity>();
+            var resultTransaccion = new ResultadoTransaccionEntity<LecturaEntity>();
 
             _metodoName = regex.Match(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name).Groups[1].Value.ToString();
 
@@ -109,7 +109,7 @@ namespace Net.Data.Web
 
                         using (var reader = await cmd.ExecuteReaderAsync())
                         {
-                            response = (List<LecturaByBaseTypeAndBaseEntryEntity>)context.ConvertTo<LecturaByBaseTypeAndBaseEntryEntity>(reader);
+                            response = (List<LecturaEntity>)context.ConvertTo<LecturaEntity>(reader);
                         }
                     }
 
@@ -129,10 +129,10 @@ namespace Net.Data.Web
             return resultTransaccion;
         }
 
-        public async Task<ResultadoTransaccionEntity<LecturaByBaseTypeAndBaseEntryAndFiltroEntity>> GetListByBaseTypeAndBaseEntryAndFiltro(FilterRequestEntity value)
+        public async Task<ResultadoTransaccionEntity<LecturaEntity>> GetListByBaseTypeBaseEntryBaseLineFiltro(FilterRequestEntity value)
         {
-            var response = new List<LecturaByBaseTypeAndBaseEntryAndFiltroEntity>();
-            var resultadoTransaccion = new ResultadoTransaccionEntity<LecturaByBaseTypeAndBaseEntryAndFiltroEntity>();
+            var response = new List<LecturaEntity>();
+            var resultadoTransaccion = new ResultadoTransaccionEntity<LecturaEntity>();
 
             _metodoName = regex.Match(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name).Groups[1].Value.ToString();
 
@@ -145,17 +145,69 @@ namespace Net.Data.Web
                 {
                     conn.Open();
 
-                    using (SqlCommand cmd = new SqlCommand(SP_GET_LIST_BY_BASETYPE_AND_BASEENTRY_AND_FILTRO, conn))
+                    using (SqlCommand cmd = new SqlCommand(SP_GET_LIST_BY_BASETYPE_BASEENTRY_BASELINE_FILTRO, conn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandTimeout = 0;
-                        cmd.Parameters.Add(new SqlParameter("@BaseEntry", value.Id1));
+                        cmd.Parameters.Add(new SqlParameter("@FI", value.Dat1));
+                        cmd.Parameters.Add(new SqlParameter("@FF", value.Dat2));
                         cmd.Parameters.Add(new SqlParameter("@BaseType", value.Cod1));
+                        cmd.Parameters.Add(new SqlParameter("@BaseEntry", value.Id1));
+                        cmd.Parameters.Add(new SqlParameter("@BaseLine", value.Id2));
+                        cmd.Parameters.Add(new SqlParameter("@Return", value.Cod2));
+                        cmd.Parameters.Add(new SqlParameter("@DocStatus", value.Cod3));
                         cmd.Parameters.Add(new SqlParameter("@Filtro", value.Text1));
 
                         using (var reader = await cmd.ExecuteReaderAsync())
                         {
-                            response = (List<LecturaByBaseTypeAndBaseEntryAndFiltroEntity>)context.ConvertTo<LecturaByBaseTypeAndBaseEntryAndFiltroEntity>(reader);
+                            response = (List<LecturaEntity>)context.ConvertTo<LecturaEntity>(reader);
+                        }
+                    }
+
+                    resultadoTransaccion.IdRegistro = 0;
+                    resultadoTransaccion.ResultadoCodigo = 0;
+                    resultadoTransaccion.ResultadoDescripcion = string.Format("Registros Totales {0}", response.Count);
+                    resultadoTransaccion.dataList = response;
+                }
+            }
+            catch (Exception ex)
+            {
+                resultadoTransaccion.IdRegistro = -1;
+                resultadoTransaccion.ResultadoCodigo = -1;
+                resultadoTransaccion.ResultadoDescripcion = ex.Message.ToString();
+            }
+
+            return resultadoTransaccion;
+        }
+
+        public async Task<ResultadoTransaccionEntity<LecturaEntity>> GetListByTargetTypeTrgetEntryTrgetLineFiltro(FilterRequestEntity value)
+        {
+            var response = new List<LecturaEntity>();
+            var resultadoTransaccion = new ResultadoTransaccionEntity<LecturaEntity>();
+
+            _metodoName = regex.Match(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name).Groups[1].Value.ToString();
+
+            resultadoTransaccion.NombreMetodo = _metodoName;
+            resultadoTransaccion.NombreAplicacion = _aplicacionName;
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(context.GetConnectionSQL()))
+                {
+                    conn.Open();
+
+                    using (SqlCommand cmd = new SqlCommand(SP_GET_LIST_BY_TARGETTYPE_TRGETENTRY_TRGETLINE_FILTRO, conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandTimeout = 0;
+                        cmd.Parameters.Add(new SqlParameter("@TargetType", value.Cod1));
+                        cmd.Parameters.Add(new SqlParameter("@TrgetEntry", value.Id1));
+                        cmd.Parameters.Add(new SqlParameter("@TrgetLine", value.Id2));
+                        cmd.Parameters.Add(new SqlParameter("@Filtro", value.Text1));
+
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            response = (List<LecturaEntity>)context.ConvertTo<LecturaEntity>(reader);
                         }
                     }
 
@@ -259,6 +311,9 @@ namespace Net.Data.Web
                                 cmdItem.CommandTimeout = 0;
                                 cmdItem.Parameters.Add(new SqlParameter("@BaseType", value.BaseType));
                                 cmdItem.Parameters.Add(new SqlParameter("@BaseEntry", value.BaseEntry));
+                                cmdItem.Parameters.Add(new SqlParameter("@BaseLine", value.BaseLine));
+                                cmdItem.Parameters.Add(new SqlParameter("@Return", value.Return));
+                                cmdItem.Parameters.Add(new SqlParameter("@DocStatus", value.DocStatus));
 
                                 await cmdItem.ExecuteNonQueryAsync();
                             }
@@ -289,7 +344,7 @@ namespace Net.Data.Web
             return resultTransaccion;
         }
 
-        public async Task<ResultadoTransaccionEntity<LecturaEntity>> SetDelete(int id)
+        public async Task<ResultadoTransaccionEntity<LecturaEntity>> SetDelete(LecturaEntity value)
         {
             var resultTransaccion = new ResultadoTransaccionEntity<LecturaEntity>();
             _metodoName = regex.Match(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name).Groups[1].Value.ToString();
@@ -312,7 +367,7 @@ namespace Net.Data.Web
                             {
                                 cmdItem.CommandType = CommandType.StoredProcedure;
                                 cmdItem.CommandTimeout = 0;
-                                cmdItem.Parameters.Add(new SqlParameter("@Id", id));
+                                cmdItem.Parameters.Add(new SqlParameter("@Id", value.Id));
 
                                 await cmdItem.ExecuteNonQueryAsync();
                             }

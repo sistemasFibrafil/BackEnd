@@ -19,6 +19,7 @@ namespace Net.Business.Entities.Sap
         public DateTime TaxDate { get; set; }
         public string SedeOrigen { get; set; }
         public string SedeDestino { get; set; }
+        public string TipoTraslado { get; set; }
         public string Comments { get; set; }
     }
 
@@ -26,7 +27,6 @@ namespace Net.Business.Entities.Sap
     {
         public int Line { get; set; }
         public int NumSolicitud { get; set; }
-        public string TipoTraslado { get; set; }
         public string ItemCode { get; set; }
         public string ItemName { get; set; }
         public string FromWhsCod { get; set; }

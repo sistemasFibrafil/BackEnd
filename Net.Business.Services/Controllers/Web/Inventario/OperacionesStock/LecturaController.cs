@@ -50,12 +50,29 @@ namespace Net.Business.Services.Controllers.Web.Inventario.OperacionesStock
             return Ok(objectGetAll.dataList);
         }
 
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetListByBaseTypeAndBaseEntryAndFiltro([FromQuery] FilterRequestDto value)
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetListByBaseTypeBaseEntryBaseLineFiltro([FromBody] FilterRequestDto value)
         {
-            var objectGetAll = await _repository.Lectura.GetListByBaseTypeAndBaseEntryAndFiltro(value.ReturnValue());
+            var objectGetAll = await _repository.Lectura.GetListByBaseTypeBaseEntryBaseLineFiltro(value.ReturnValue());
+
+            if (objectGetAll.ResultadoCodigo == -1)
+            {
+                return BadRequest(objectGetAll);
+            }
+
+            return Ok(objectGetAll.dataList);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetListByTargetTypeTrgetEntryTrgetLineFiltro([FromBody] FilterRequestDto value)
+        {
+            var objectGetAll = await _repository.Lectura.GetListByTargetTypeTrgetEntryTrgetLineFiltro(value.ReturnValue());
 
             if (objectGetAll.ResultadoCodigo == -1)
             {
@@ -112,18 +129,18 @@ namespace Net.Business.Services.Controllers.Web.Inventario.OperacionesStock
             return Ok();
         }
 
-        [HttpDelete("{id}")]
+        [HttpPatch]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status409Conflict)]
-        public async Task<IActionResult> SetDelete(int id)
+        public async Task<IActionResult> SetDelete([FromBody] LecturaDeleteRequestDto value)
         {
-            if (id == 0)
+            if (value == null)
             {
                 return BadRequest("No hay registro a eliminar ..!");
             }
 
-            var response = await _repository.Lectura.SetDelete(id);
+            var response = await _repository.Lectura.SetDelete(value.ReturnValue());
 
             if (response.ResultadoCodigo == -1)
             {

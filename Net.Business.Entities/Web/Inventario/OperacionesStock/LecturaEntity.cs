@@ -29,28 +29,7 @@ namespace Net.Business.Entities.Web
         public int IdUsuarioCreate { get; set; }
     }
 
-    public class LecturaByBaseTypeAndBaseEntryEntity
-    {
-        public int BaseEntry { get; set; }
-        public int BaseNum { get; set; }
-        public string ObjType { get; set; }
-        public string ItemCode { get; set; }
-        public string Dscription { get; set; }
-        public string UnitMsr { get; set; }
-        public decimal Quantity { get; set; }
-        public decimal Peso { get; set; }
-    }
-
-    public class LecturaByBaseTypeAndBaseEntryAndFiltroEntity
-    {
-        public int Id { get; set; }
-        public int LineBase { get; set; }
-        public string ItemCode { get; set; }
-        public string Barcode { get; set; }
-        public decimal Peso { get; set; }
-    }
-
-        public class LecturaCopyToTransferenciaFindEntity
+    public class LecturaCopyToTransferenciaFindEntity
     {
         public int IdBase { get; set; }
         public string BaseType { get; set; }

@@ -4,8 +4,8 @@ namespace Net.Business.DTO.Web
 {
     public class LecturaCopyToTransferenciaFindDto
     {
-        public int IdBase { get; set; }
         public string BaseType { get; set; }
+        public int IdBase { get; set; }
         public List<LecturaCopyToTransferenciaDetalleFindDto> Linea { get; set; } = new List<LecturaCopyToTransferenciaDetalleFindDto>();
 
         public LecturaCopyToTransferenciaFindEntity ReturnValue()
@@ -19,9 +19,9 @@ namespace Net.Business.DTO.Web
             {
                 value.Linea.Add( new LecturaCopyToTransferenciaDetalleFindEntity()
                 {
+                    BaseType = linea.BaseType,
                     IdBase = linea.IdBase,
                     LineBase = linea.LineBase,
-                    BaseType = linea.BaseType,
                     Return = linea.Return,
                 });
             }
@@ -32,9 +32,9 @@ namespace Net.Business.DTO.Web
 
     public class LecturaCopyToTransferenciaDetalleFindDto
     {
+        public string BaseType { get; set; }
         public int IdBase { get; set; }
         public int LineBase { get; set; }
-        public string BaseType { get; set; }
         public string Return { get; set; }
     }
 }

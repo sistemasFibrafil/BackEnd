@@ -70,7 +70,7 @@ namespace Net.Business.Services.Controllers.Web.Inventario.OperacionesStock
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> SetCreate([FromBody] TransferenciaStockCreateRequestDto value)
+        public async Task<IActionResult> SetCreate1([FromBody] TransferenciaStockCreateRequestDto value)
         {
             if (value == null)
             {
@@ -82,7 +82,33 @@ namespace Net.Business.Services.Controllers.Web.Inventario.OperacionesStock
                 return BadRequest("Modelo no válido ..!");
             }
 
-            var objectNew = await _repository.TransferenciaStock.SetCreate(value.ReturnValue());
+            var objectNew = await _repository.TransferenciaStock.SetCreate1(value.ReturnValue());
+
+            if (objectNew.ResultadoCodigo == -1)
+            {
+                return BadRequest(objectNew);
+            }
+
+            return NoContent();
+        }
+
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> SetCreate2([FromBody] TransferenciaStockCreateRequestDto value)
+        {
+            if (value == null)
+            {
+                return BadRequest("No hay registros a crear ..!");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Modelo no válido ..!");
+            }
+
+            var objectNew = await _repository.TransferenciaStock.SetCreate2(value.ReturnValue());
 
             if (objectNew.ResultadoCodigo == -1)
             {

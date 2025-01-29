@@ -1,19 +1,8 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-using System.Data;
-using Net.Connection;
+﻿using Net.Connection;
 using Net.CrossCotting;
-using Net.Business.Entities;
-using System.Data.SqlClient;
-using DocumentFormat.OpenXml;
-using System.Threading.Tasks;
 using Net.Business.Entities.Sap;
-using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using DocumentFormat.OpenXml.Packaging;
 using Microsoft.Extensions.Configuration;
-using DocumentFormat.OpenXml.Spreadsheet;
 namespace Net.Data.Sap
 {
     public class EntregaSapRepository : RepositoryBase<EntregaSapEntity>, IEntregaSapRepository

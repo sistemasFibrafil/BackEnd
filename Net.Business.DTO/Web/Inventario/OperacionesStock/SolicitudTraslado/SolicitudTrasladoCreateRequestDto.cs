@@ -9,6 +9,7 @@ namespace Net.Business.DTO.Web
         public DateTime DocDate { get; set; }
         public DateTime DocDueDate { get; set; }
         public DateTime TaxDate { get; set; }
+        public string Read { get; set; } = null;
         public string CardCode { get; set; } = null;
         public string CardName { get; set; } = null;
         public int CntctCode { get; set; } = 0;
@@ -32,6 +33,7 @@ namespace Net.Business.DTO.Web
                 DocDate = DocDate,
                 DocDueDate = DocDueDate,
                 TaxDate = TaxDate,
+                Read = Read,
                 CardCode = CardCode,
                 CardName = CardName,
                 CntctCode = CntctCode,

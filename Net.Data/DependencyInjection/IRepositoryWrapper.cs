@@ -84,7 +84,8 @@ namespace Net.Data
         /// </summary>
         IArticuloSapRepository ArticuloSap { get; }
         IDocumentoLecturaSapRepository DocumentoLecturaSap { get; }
-        ITransferenciaStockSapRepositoy TransferenciaStockSap { get; }
+        ISolicitudTrasladoSapRepository SolicitudTrasladoSap { get; }
+        ITransferenciaStockSapRepository TransferenciaStockSap { get; }
 
         /// <summary>
         /// SOCIOS DE NEGOCIOS

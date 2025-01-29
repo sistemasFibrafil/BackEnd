@@ -93,7 +93,6 @@ namespace Net.Data.Web
 
             return resultTransaccion;
         }
-
         public async Task<ResultadoTransaccionEntity<TransferenciaStockEntity>> GetListByFiltro(FilterRequestEntity value)
         {
             var response = new List<TransferenciaStockEntity>();
@@ -194,10 +193,9 @@ namespace Net.Data.Web
 
             return resultTransaccion;
         }
-
-        public async Task<ResultadoTransaccionEntity<TransferenciaStockEntity>> SetCreate(TransferenciaStockEntity value)
+        public async Task<ResultadoTransaccionEntity<TransferenciaStockEntity>> SetCreate1(TransferenciaStockEntity value)
         {
-            var con = -1;
+            //var con = -1;
             var responde = new TransferenciaStockEntity();
             var resultTransaccion = new ResultadoTransaccionEntity<TransferenciaStockEntity>();
 
@@ -215,10 +213,11 @@ namespace Net.Data.Web
                         await conn.OpenAsync();
                         conn.EnlistTransaction(transaction);
 
-                        while (con != 0)
-                        {
-                            con = _connectionSap.ConnectToCompany(_cnnDiApiSap);
-                        }
+                        //while (con != 0)
+                        //{
+                        //    con = _connectionSap.ConnectToCompany(_cnnDiApiSap);
+                        //}
+                        _connectionSap.ConnectToCompany(_cnnDiApiSap);
                         if (RepositoryBaseSap.oCompany is not null)
                         {
                             if (RepositoryBaseSap.oCompany.InTransaction)
@@ -226,6 +225,380 @@ namespace Net.Data.Web
                                 RepositoryBaseSap.oCompany.EndTransaction(BoWfTransOpt.wf_RollBack);
                             }
                         }
+                        
+
+                        RepositoryBaseSap.oCompany.StartTransaction();
+
+                        StockTransfer documentIns = RepositoryBaseSap.oCompany.GetBusinessObject(BoObjectTypes.oStockTransfer);
+                        StockTransfer documentQry = RepositoryBaseSap.oCompany.GetBusinessObject(BoObjectTypes.oStockTransfer);
+
+                        try
+                        {
+                            #region <<< CREACIÓN DE TRANSFERENCIA DE STOCK >>>
+                            // Creación de la transferencia de stock en la base de datos LOCAL
+                            using (SqlCommand cmd = new SqlCommand(SP_SET_CREATE, conn))
+                            {
+                                cmd.CommandType = CommandType.StoredProcedure;
+                                cmd.CommandTimeout = 0;
+                                // CABECERA
+                                cmd.Parameters.Add(new SqlParameter("@Id", SqlDbType.Int)).Direction = ParameterDirection.Output;
+                                cmd.Parameters.Add(new SqlParameter("@TipDocumento", value.TipDocumento));
+                                cmd.Parameters.Add(new SqlParameter("@SerDocumento", value.SerDocumento));
+                                cmd.Parameters.Add(new SqlParameter("@DocDate", value.DocDate));
+                                cmd.Parameters.Add(new SqlParameter("@DocDueDate", value.DocDueDate));
+                                cmd.Parameters.Add(new SqlParameter("@TaxDate", value.TaxDate));
+                                // CLIENTE
+                                cmd.Parameters.Add(new SqlParameter("@CardCode", value.CardCode));
+                                cmd.Parameters.Add(new SqlParameter("@CardName", value.CardName));
+                                cmd.Parameters.Add(new SqlParameter("@CntctCode", value.CntctCode));
+                                cmd.Parameters.Add(new SqlParameter("@Address", value.Address));
+                                // ALMACÉN
+                                cmd.Parameters.Add(new SqlParameter("@Filler", value.Filler));
+                                cmd.Parameters.Add(new SqlParameter("@ToWhsCode", value.ToWhsCode));
+                                // TRANSPORTISTA
+                                cmd.Parameters.Add(new SqlParameter("@CodTipTransporte", value.CodTipTransporte));
+                                cmd.Parameters.Add(new SqlParameter("@CodTipDocTransportista", value.CodTipDocTransportista));
+                                cmd.Parameters.Add(new SqlParameter("@NumTipoDocTransportista", value.NumTipoDocTransportista));
+                                cmd.Parameters.Add(new SqlParameter("@NomTransportista", value.NomTransportista));
+                                cmd.Parameters.Add(new SqlParameter("@NumPlaVehTransportista", value.NumPlaVehTransportista));
+                                // CONDUCTOR
+                                cmd.Parameters.Add(new SqlParameter("@CodTipDocConductor", value.CodTipDocConductor));
+                                cmd.Parameters.Add(new SqlParameter("@NumTipoDocConductor", value.NumTipoDocConductor));
+                                cmd.Parameters.Add(new SqlParameter("@NomConductor", value.NomConductor));
+                                cmd.Parameters.Add(new SqlParameter("@ApeConductor", value.ApeConductor));
+                                cmd.Parameters.Add(new SqlParameter("@NomComConductor", value.NomComConductor));
+                                cmd.Parameters.Add(new SqlParameter("@NumLicConductor", value.NumLicConductor));
+                                // OTROS
+                                cmd.Parameters.Add(new SqlParameter("@CodTipTraslado", value.CodTipTraslado));
+                                cmd.Parameters.Add(new SqlParameter("@CodMotTraslado", value.CodMotTraslado));
+                                cmd.Parameters.Add(new SqlParameter("@CodTipSalida", value.CodTipSalida));
+                                //PIE
+                                cmd.Parameters.Add(new SqlParameter("@SlpCode", value.SlpCode));
+                                cmd.Parameters.Add(new SqlParameter("@NumBulto", value.NumBulto));
+                                cmd.Parameters.Add(new SqlParameter("@TotKilo", value.TotKilo));
+                                cmd.Parameters.Add(new SqlParameter("@JrnlMemo", value.JrnlMemo));
+                                cmd.Parameters.Add(new SqlParameter("@Comments", value.Comments));
+                                //USUARIO
+                                cmd.Parameters.Add(new SqlParameter("@IdUsuarioCreate", value.IdUsuarioCreate));
+
+                                await cmd.ExecuteNonQueryAsync();
+
+                                value.Id = (int)cmd.Parameters["@Id"].Value;
+                            }
+
+
+                            #region <<< ACTUALIZAMOS EL ID >>>
+                            foreach (var linea in value.Linea)
+                            {
+                                linea.Id = value.Id;
+                            }
+                            #endregion
+
+
+                            #region <<< REGISTRAMOS EL DETALLE DE LA TRANSFERENCIA DE SCTOCK >>>
+                            
+                            using (SqlCommand cmd = new SqlCommand(SP_SET_DETALLE_CREATE, conn))
+                            {
+                                cmd.CommandType = CommandType.StoredProcedure;
+                                cmd.CommandTimeout = 0;
+
+                                foreach (var linea in value.Linea)
+                                {
+                                    cmd.Parameters.Clear();
+                                    cmd.Parameters.Add(new SqlParameter("@Id", linea.Id));
+                                    cmd.Parameters.Add(new SqlParameter("@Line", SqlDbType.Int)).Direction = ParameterDirection.Output;
+                                    cmd.Parameters.Add(new SqlParameter("@IdBase", linea.IdBase));
+                                    cmd.Parameters.Add(new SqlParameter("@LineBase", linea.LineBase));
+                                    cmd.Parameters.Add(new SqlParameter("@BaseType", linea.BaseType));
+                                    cmd.Parameters.Add(new SqlParameter("@BaseEntry", linea.BaseEntry));
+                                    cmd.Parameters.Add(new SqlParameter("@BaseLine", linea.BaseLine));
+                                    cmd.Parameters.Add(new SqlParameter("@ItemCode", linea.ItemCode));
+                                    cmd.Parameters.Add(new SqlParameter("@Dscription", linea.Dscription));
+                                    cmd.Parameters.Add(new SqlParameter("@FromWhsCod", linea.FromWhsCod));
+                                    cmd.Parameters.Add(new SqlParameter("@WhsCode", linea.WhsCode));
+                                    cmd.Parameters.Add(new SqlParameter("@CodTipOperacion", linea.CodTipOperacion));
+                                    cmd.Parameters.Add(new SqlParameter("@UnitMsr", linea.UnitMsr));
+                                    cmd.Parameters.Add(new SqlParameter("@Quantity", linea.Quantity));
+                                    cmd.Parameters.Add(new SqlParameter("@OpenQty", linea.OpenQty));
+                                    cmd.Parameters.Add(new SqlParameter("@IdUsuarioCreate", linea.IdUsuarioCreate));
+
+                                    await cmd.ExecuteNonQueryAsync();
+
+                                    linea.Line = (int)cmd.Parameters["@Line"].Value;
+                                }
+                            }
+                            #endregion
+
+                            #endregion
+
+
+                            #region <<< SAP >>>
+                            try
+                            {
+                                #region <<< CREACIÓN DE TRANSFERENCIA DE STOCK EN SAP >>>
+                                // Creacion de la transferencia de stock en la base de datos SAP B1
+                                // ===========================================================================================
+                                // CABECERA
+                                // ===========================================================================================
+                                documentIns.DocDate = value.DocDate;
+                                documentIns.DueDate = value.DocDueDate;
+                                documentIns.TaxDate = value.TaxDate;
+                                documentIns.DocObjectCode = BoObjectTypes.oStockTransfer;
+                                // ===========================================================================================
+                                // SOCIO DE NEGOCIO
+                                // ===========================================================================================
+                                documentIns.CardCode = value.CardCode;
+                                documentIns.CardName = value.CardName;
+                                documentIns.ContactPerson = value.CntctCode;
+                                documentIns.Address = value.Address;
+                                // ===========================================================================================
+                                // SUNAT
+                                // ===========================================================================================
+                                if (value.TipDocumento != "") documentIns.UserFields.Fields.Item("U_BPP_MDTD").Value = value.TipDocumento;
+                                if (value.SerDocumento != "") documentIns.UserFields.Fields.Item("U_BPP_MDSD").Value = value.SerDocumento;
+                                if (value.NumDocumento != "") documentIns.UserFields.Fields.Item("U_BPP_MDCD").Value = value.NumDocumento;
+                                // ALMACEN
+                                // ===========================================================================================
+                                documentIns.FromWarehouse = value.Filler;
+                                documentIns.ToWarehouse = value.ToWhsCode;
+                                // ===========================================================================================
+                                // TRANSPORTISTA
+                                // ===========================================================================================
+                                if (value.CodTipTransporte != "") documentIns.UserFields.Fields.Item("U_FIB_TIP_TRANS").Value = value.CodTipTransporte;
+                                if (value.CodTipDocTransportista != "") documentIns.UserFields.Fields.Item("U_FIB_TIPDOC_TRA").Value = value.CodTipDocTransportista;
+                                if (value.NumTipoDocTransportista != "") documentIns.UserFields.Fields.Item("U_BPP_MDRT").Value = value.NumTipoDocTransportista;
+                                if (value.NomTransportista != "") documentIns.UserFields.Fields.Item("U_BPP_MDNT").Value = value.NomTransportista;
+                                if (value.NumPlaVehTransportista != "") documentIns.UserFields.Fields.Item("U_BPP_MDVC").Value = value.NumPlaVehTransportista;
+                                // ===========================================================================================
+                                // OTROS
+                                // ===========================================================================================
+                                if (value.CodTipDocConductor != "") documentIns.UserFields.Fields.Item("U_FIB_TIPDOC_COND").Value = value.CodTipDocConductor;
+                                if (value.NumTipoDocConductor != "") documentIns.UserFields.Fields.Item("U_FIB_NUMDOC_COD").Value = value.NumTipoDocConductor;
+                                if (value.NomConductor != "") documentIns.UserFields.Fields.Item("U_FIB_NOM_COND").Value = value.NomConductor;
+                                if (value.ApeConductor != "") documentIns.UserFields.Fields.Item("U_FIB_APE_COND").Value = value.ApeConductor;
+                                if (value.NomComConductor != "") documentIns.UserFields.Fields.Item("U_BPP_MDFN").Value = value.NomComConductor;
+                                if (value.NumLicConductor != "") documentIns.UserFields.Fields.Item("U_BPP_MDFC").Value = value.NumLicConductor;
+                                // ===========================================================================================
+                                // OTROS
+                                // ===========================================================================================
+                                if (value.CodTipTraslado != "") documentIns.UserFields.Fields.Item("U_FIB_TIP_TRAS").Value = value.CodTipTraslado;
+                                if (value.CodMotTraslado != "") documentIns.UserFields.Fields.Item("U_BPP_MDMT").Value = value.CodMotTraslado;
+                                if (value.CodTipSalida != "") documentIns.UserFields.Fields.Item("U_BPP_MDTS").Value = value.CodTipSalida;
+                                // ===========================================================================================
+                                // PIE
+                                // ===========================================================================================
+                                documentIns.SalesPersonCode = value.SlpCode;
+                                if (value.NumBulto != 0) documentIns.UserFields.Fields.Item("U_FIB_NBULTOS").Value = value.NumBulto.ToString();
+                                if (value.TotKilo != 0) documentIns.UserFields.Fields.Item("U_FIB_KG").Value = value.TotKilo.ToString();
+                                documentIns.JournalMemo = value.JrnlMemo;
+                                documentIns.Comments = value.Comments;
+
+                                // ===========================================================================================
+                                // DETALLE
+                                // ===========================================================================================
+                                foreach (var linea in value.Linea)
+                                {
+                                    documentIns.Lines.BaseType = InvBaseDocTypeEnum.InventoryTransferRequest;
+                                    documentIns.Lines.BaseEntry = linea.BaseEntry;
+                                    documentIns.Lines.BaseLine = linea.BaseLine;
+                                    documentIns.Lines.ItemCode = linea.ItemCode;
+                                    documentIns.Lines.ItemDescription = linea.Dscription;
+                                    documentIns.Lines.FromWarehouseCode = linea.FromWhsCod;
+                                    documentIns.Lines.WarehouseCode = linea.WhsCode;
+                                    documentIns.Lines.UserFields.Fields.Item("U_tipoOpT12").Value = linea.CodTipOperacion;
+                                    documentIns.Lines.Quantity = (double)linea.Quantity;
+                                    // ===========================================================================================
+                                    // Relación entre la OV de la base local y SAP
+                                    // ===========================================================================================
+                                    documentIns.Lines.UserFields.Fields.Item("U_FIB_BASETYPE").Value = -1;
+                                    documentIns.Lines.UserFields.Fields.Item("U_FIB_BASEENTRY").Value = linea.Id;
+                                    documentIns.Lines.UserFields.Fields.Item("U_FIB_BASELINENUM").Value = linea.Line;
+                                    // ===========================================================================================
+                                    // Relación entre la OV de la base local y SAP
+                                    // ===========================================================================================
+                                    documentIns.Lines.Add();
+                                }
+
+                                var reg = documentIns.Add();
+
+                                if (reg != 0)
+                                {
+                                    transaction.Rollback();
+                                    if (RepositoryBaseSap.oCompany is not null)
+                                    {
+                                        if (RepositoryBaseSap.oCompany.InTransaction)
+                                        {
+                                            RepositoryBaseSap.oCompany.EndTransaction(BoWfTransOpt.wf_RollBack);
+                                        }
+                                    }
+                                    if (RepositoryBaseSap.oCompany is not null)
+                                    {
+                                        if (RepositoryBaseSap.oCompany.Connected)
+                                        {
+                                            _connectionSap.DisConnectToCompany();
+                                        }
+                                    }
+                                    resultTransaccion.IdRegistro = -1;
+                                    resultTransaccion.ResultadoCodigo = -1;
+                                    resultTransaccion.ResultadoDescripcion = RepositoryBaseSap.oCompany.GetLastErrorDescription();
+                                    return resultTransaccion;
+                                }
+                                else
+                                {
+                                    var docEntryTmp = RepositoryBaseSap.oCompany.GetNewObjectKey();
+                                    value.DocEntry = docEntryTmp == null ? 0 : int.Parse(docEntryTmp);
+                                    documentQry.GetByKey(value.DocEntry);
+                                }
+                                #endregion
+                            }
+                            catch (Exception ex)
+                            {
+                                transaction.Rollback();
+                                if (RepositoryBaseSap.oCompany is not null)
+                                {
+                                    if (RepositoryBaseSap.oCompany.InTransaction)
+                                    {
+                                        RepositoryBaseSap.oCompany.EndTransaction(BoWfTransOpt.wf_RollBack);
+                                    }
+                                }
+                                if (RepositoryBaseSap.oCompany is not null)
+                                {
+                                    if (RepositoryBaseSap.oCompany.Connected)
+                                    {
+                                        _connectionSap.DisConnectToCompany();
+                                    }
+                                }
+                                resultTransaccion.IdRegistro = -1;
+                                resultTransaccion.ResultadoCodigo = -1;
+                                resultTransaccion.ResultadoDescripcion = ex.Message.ToString();
+                                return resultTransaccion;
+                            }
+                            #endregion
+
+
+                            #region <<< ACTUALIZAR LA TRANSFERENCIA DE STOCK CON DATOS OBTENIDOS DE SAP >>>
+                            using (SqlCommand cmd = new SqlCommand(SP_SET_DATOS_SAP_UPDATE, conn))
+                            {
+                                cmd.CommandType = CommandType.StoredProcedure;
+                                cmd.CommandTimeout = 0;
+                                cmd.Parameters.Add(new SqlParameter("@Id", value.Id));
+                                cmd.Parameters.Add(new SqlParameter("@DocEntry", documentQry.DocEntry));
+                                cmd.Parameters.Add(new SqlParameter("@DocNum", documentQry.DocNum));
+                                cmd.Parameters.Add(new SqlParameter("@TipDocumento", documentQry.UserFields.Fields.Item("U_BPP_MDTD").Value));
+                                cmd.Parameters.Add(new SqlParameter("@SerDocumento", documentQry.UserFields.Fields.Item("U_BPP_MDSD").Value));
+                                cmd.Parameters.Add(new SqlParameter("@NumDocumento", documentQry.UserFields.Fields.Item("U_BPP_MDCD").Value));
+
+                                await cmd.ExecuteNonQueryAsync();
+                            }
+
+                            using (SqlCommand cmd = new SqlCommand(SP_SET_DETALLE_DATOS_SAP_UPDATE, conn))
+                            {
+                                cmd.CommandType = CommandType.StoredProcedure;
+                                cmd.CommandTimeout = 0;
+
+                                for (int i = 0; i < documentQry.Lines.Count; i++)
+                                {
+                                    // SE OBTIENE POR LINEA PARA ACTUALIZAR EL DB LOCAL
+                                    documentQry.Lines.SetCurrentLine(i);
+
+                                    cmd.Parameters.Clear();
+                                    cmd.Parameters.Add(new SqlParameter("@Id", documentQry.Lines.UserFields.Fields.Item("U_FIB_BASEENTRY").Value));
+                                    cmd.Parameters.Add(new SqlParameter("@Line", documentQry.Lines.UserFields.Fields.Item("U_FIB_BASELINENUM").Value));
+                                    cmd.Parameters.Add(new SqlParameter("@DocEntry", documentQry.Lines.DocEntry));
+                                    cmd.Parameters.Add(new SqlParameter("@LineNum", documentQry.Lines.LineNum));
+                                    await cmd.ExecuteNonQueryAsync();
+                                }
+                            }
+                            #endregion
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            if (RepositoryBaseSap.oCompany is not null)
+                            {
+                                if (RepositoryBaseSap.oCompany.InTransaction)
+                                {
+                                    RepositoryBaseSap.oCompany.EndTransaction(BoWfTransOpt.wf_RollBack);
+                                }
+                            }
+                            if (RepositoryBaseSap.oCompany is not null)
+                            {
+                                if (RepositoryBaseSap.oCompany.Connected)
+                                {
+                                    _connectionSap.DisConnectToCompany();
+                                }
+                            }
+                            resultTransaccion.IdRegistro = -1;
+                            resultTransaccion.ResultadoCodigo = -1;
+                            resultTransaccion.ResultadoDescripcion = ex.Message.ToString();
+                            return resultTransaccion;
+                        }
+
+
+                        transaction.Commit();
+                        if (RepositoryBaseSap.oCompany is not null)
+                        {
+                            if (RepositoryBaseSap.oCompany.InTransaction)
+                            {
+                                RepositoryBaseSap.oCompany.EndTransaction(BoWfTransOpt.wf_Commit);
+                            }
+                        }
+                        if (RepositoryBaseSap.oCompany is not null)
+                        {
+                            if (RepositoryBaseSap.oCompany.Connected)
+                            {
+                                _connectionSap.DisConnectToCompany();
+                            }
+                        }
+                        resultTransaccion.IdRegistro = 0;
+                        resultTransaccion.ResultadoCodigo = 0;
+                        resultTransaccion.ResultadoDescripcion = "Registro procesado con éxito ..!";
+                        return resultTransaccion;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                resultTransaccion.IdRegistro = -1;
+                resultTransaccion.ResultadoCodigo = -1;
+                resultTransaccion.ResultadoDescripcion = ex.Message.ToString();
+                return resultTransaccion;
+            }
+        }
+        public async Task<ResultadoTransaccionEntity<TransferenciaStockEntity>> SetCreate2(TransferenciaStockEntity value)
+        {
+            //var con = -1;
+            var responde = new TransferenciaStockEntity();
+            var resultTransaccion = new ResultadoTransaccionEntity<TransferenciaStockEntity>();
+
+            _metodoName = regex.Match(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name).Groups[1].Value.ToString();
+
+            resultTransaccion.NombreMetodo = _metodoName;
+            resultTransaccion.NombreAplicacion = _aplicacionName;
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(context.GetConnectionSQL()))
+                {
+                    using (CommittableTransaction transaction = new CommittableTransaction())
+                    {
+                        await conn.OpenAsync();
+                        conn.EnlistTransaction(transaction);
+
+                        //while (con != 0)
+                        //{
+                        //    con = _connectionSap.ConnectToCompany(_cnnDiApiSap);
+                        //}
+                        _connectionSap.ConnectToCompany(_cnnDiApiSap);
+                        if (RepositoryBaseSap.oCompany is not null)
+                        {
+                            if (RepositoryBaseSap.oCompany.InTransaction)
+                            {
+                                RepositoryBaseSap.oCompany.EndTransaction(BoWfTransOpt.wf_RollBack);
+                            }
+                        }
+
+
                         RepositoryBaseSap.oCompany.StartTransaction();
 
                         StockTransfer documentIns = RepositoryBaseSap.oCompany.GetBusinessObject(BoObjectTypes.oStockTransfer);
@@ -313,8 +686,6 @@ namespace Net.Data.Web
                                     p.WhsCode,
                                     p.CodTipOperacion,
                                     p.UnitMsr,
-                                    p.Quantity,
-                                    p.OpenQty,
                                     p.IdUsuarioCreate
                                 })
                             .Select
@@ -333,7 +704,7 @@ namespace Net.Data.Web
                                 WhsCode = g.Key.WhsCode,
                                 CodTipOperacion = g.Key.CodTipOperacion,
                                 UnitMsr = g.Key.UnitMsr,
-                                Quantity = g.Sum(p=>p.Quantity),
+                                Quantity = g.Sum(p => p.Quantity),
                                 OpenQty = g.Sum(p => p.OpenQty),
                                 IdUsuarioCreate = g.Key.IdUsuarioCreate
                             }).ToList();
@@ -569,9 +940,9 @@ namespace Net.Data.Web
 
                                         if (linea.BaseEntry == documentQry.Lines.BaseEntry && linea.BaseLine == documentQry.Lines.BaseLine)
                                         {
-                                             cmd.Parameters.Clear();
+                                            cmd.Parameters.Clear();
                                             cmd.Parameters.Add(new SqlParameter("@IdLectura", linea.IdLectura));
-                                            cmd.Parameters.Add(new SqlParameter("@TargetType", ((int)BoObjectTypes.oInventoryTransferRequest).ToString()));
+                                            cmd.Parameters.Add(new SqlParameter("@TargetType", value.ObjType));
                                             cmd.Parameters.Add(new SqlParameter("@TrgetEntry", documentQry.Lines.DocEntry));
                                             cmd.Parameters.Add(new SqlParameter("@TrgetLine", documentQry.Lines.LineNum));
                                             await cmd.ExecuteNonQueryAsync();
@@ -635,10 +1006,9 @@ namespace Net.Data.Web
                 return resultTransaccion;
             }
         }
-
         public async Task<ResultadoTransaccionEntity<TransferenciaStockEntity>> SetUpdate(TransferenciaStockEntity value)
         {
-            var con = -1;
+            //var con = -1;
             var responde = new TransferenciaStockEntity();
             var resultTransaccion = new ResultadoTransaccionEntity<TransferenciaStockEntity>();
 
@@ -656,10 +1026,12 @@ namespace Net.Data.Web
                         await conn.OpenAsync();
                         conn.EnlistTransaction(transaction);
 
-                        while (con != 0)
-                        {
-                            con = _connectionSap.ConnectToCompany(_cnnDiApiSap);
-                        }
+                        //while (con != 0)
+                        //{
+                        //    con = _connectionSap.ConnectToCompany(_cnnDiApiSap);
+                        //}
+
+                        _connectionSap.ConnectToCompany(_cnnDiApiSap);
                         if (RepositoryBaseSap.oCompany is not null)
                         {
                             if (RepositoryBaseSap.oCompany.InTransaction)
