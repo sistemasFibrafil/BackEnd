@@ -25,6 +25,10 @@ namespace Net.Business.Entities.Web
         public string WhsCode { get; set; } = null;
         public string UnitMsr { get; set; }
         public decimal Quantity { get; set; }
+        public decimal OpenQty { get; set; }
+        public decimal QtyRead { get; set; }
+        public decimal EngQtyRead { get; set; }
+        public decimal DedQtyRead { get; set; }
         public decimal Peso { get; set; }
         public int IdUsuarioCreate { get; set; }
     }
@@ -41,6 +45,7 @@ namespace Net.Business.Entities.Web
         public int IdBase { get; set; }
         public int LineBase { get; set; }
         public string BaseType { get; set; }
+        public string Read { get; set; }
         public string Return { get; set; }
     }
 
@@ -59,10 +64,11 @@ namespace Net.Business.Entities.Web
         public int SlpCode { get; set; }
         public string JrnlMemo { get; set; }
         public string Comments { get; set; }
-        public List<LecturaCopyToTransferenciaDetalleEntity> Linea { get; set; } = new List<LecturaCopyToTransferenciaDetalleEntity>();
+        public List<LecturaCopyToTransferenciaDetalleEntity1> Linea1 { get; set; } = new List<LecturaCopyToTransferenciaDetalleEntity1>();
+        public List<LecturaCopyToTransferenciaDetalleEntity2> Linea2 { get; set; } = new List<LecturaCopyToTransferenciaDetalleEntity2>();
     }
 
-    public class LecturaCopyToTransferenciaDetalleEntity
+    public class LecturaCopyToTransferenciaDetalleEntity1
     {
         public int Id { get; set; }
         public int IdBase { get; set; }
@@ -70,6 +76,7 @@ namespace Net.Business.Entities.Web
         public string BaseType { get; set; } 
         public int BaseEntry { get; set; }
         public int BaseLine { get; set; }
+        public string Read { get; set; }
         public string Return { get; set; }
         public string ItemCode { get; set; }
         public string Dscription { get; set; }
@@ -77,8 +84,32 @@ namespace Net.Business.Entities.Web
         public string FromWhsCod { get; set; }
         public string WhsCode { get; set; }
         public string CodTipOperacion { get; set; }
+        public string NomTipOperacion { get; set; }
         public string UnitMsr { get; set; }
         public decimal Quantity { get; set; }
         public decimal OpenQty { get; set; }
+        public decimal Bulto { get; set; }
+        public decimal Peso { get; set; }
+    }
+
+    public class LecturaCopyToTransferenciaDetalleEntity2
+    {
+        public int IdBase { get; set; }
+        public int LineBase { get; set; }
+        public string BaseType { get; set; }
+        public int BaseEntry { get; set; }
+        public int BaseLine { get; set; }
+        public string Read { get; set; }
+        public string ItemCode { get; set; }
+        public string Dscription { get; set; }
+        public string FromWhsCod { get; set; }
+        public string WhsCode { get; set; }
+        public string CodTipOperacion { get; set; }
+        public string NomTipOperacion { get; set; }
+        public string UnitMsr { get; set; }
+        public decimal Quantity { get; set; }
+        public decimal OpenQty { get; set; }
+        public decimal Bulto { get; set; }
+        public decimal Peso { get; set; }
     }
 }

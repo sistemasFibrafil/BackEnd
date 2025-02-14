@@ -312,7 +312,6 @@ namespace Net.Data.Sap
             }
         }
 
-
         public async Task<ResultadoTransaccionEntity<VentaSapByFechaSlpCodeEntity>> GetListVentaByFechaAndSlpCode(FilterRequestEntity value)
         {
             var response = new List<VentaSapByFechaSlpCodeEntity>();

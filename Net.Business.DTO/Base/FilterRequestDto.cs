@@ -21,6 +21,11 @@ namespace Net.Business.DTO
         public int? Val3 { get; set; } = 0;
         public int? Val4 { get; set; } = 0;
         public int? Val5 { get; set; } = 0;
+        public decimal? Dec1 { get; set; } = 0;
+        public decimal? Dec2 { get; set; } = 0;
+        public decimal? Dec3 { get; set; } = 0;
+        public decimal? Dec4 { get; set; } = 0;
+        public decimal? Dec5 { get; set; } = 0;
         public string Text1 { get; set; } = "";
         public string Text2 { get; set; } = "";
         public string Text3 { get; set; } = "";
@@ -48,6 +53,11 @@ namespace Net.Business.DTO
                 Val3 = this.Val3,
                 Val4 = this.Val4,
                 Val5 = this.Val5,
+                Dec1 = this.Dec1,
+                Dec2 = this.Dec2,
+                Dec3 = this.Dec3,
+                Dec4 = this.Dec4,
+                Dec5 = this.Dec5,
                 Text1 = this.Text1,
                 Text2 = this.Text2,
                 Text3 = this.Text3,

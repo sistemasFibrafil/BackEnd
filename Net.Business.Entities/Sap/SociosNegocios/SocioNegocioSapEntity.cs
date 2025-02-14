@@ -11,11 +11,19 @@ namespace Net.Business.Entities.Sap
         public string Currency { get; set; }
         public string CodStatus { get; set; }
         public string NomStatus { get; set; }
+        public string Tel1 { get; set; }
+        public string Tel2 { get; set; }
+        public string Movil { get; set; }
+        public string Email { get; set; }
         public int SlpCode { get; set; }
         public string SlpName { get; set; }
         public int CntctCode { get; set; }
         public string CntctPrsn { get; set; }
         public string NomContacto { get; set; }
+        public string TelContacto1 { get; set; }
+        public string TelContacto2 { get; set; }
+        public string MovilContacto { get; set; }
+        public string EmailContacto { get; set; }
         public string BillToDef { get; set; }
         public string Address { get; set; }
         public string Pais { get; set; }
@@ -28,7 +36,6 @@ namespace Net.Business.Entities.Sap
         public Int32 GroupNum { get; set; }
         public string NomSector { get; set; }
         public string NomDivision { get; set; }
-        public string TelContacto { get; set; }
         public DateTime CreateDate { get; set; }
         public DateTime? LowDate { get; set; }
         public DateTime? FechaUltimaVenta { get; set; }

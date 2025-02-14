@@ -20,7 +20,12 @@ namespace Net.Business.Entities
         public int? Val2 { get; set; } = 0;
         public int? Val3 { get; set; } = 0;
         public int? Val4 { get; set; } = 0;
-        public int? Val5 { get; set; } = 0;
+        public decimal? Val5 { get; set; } = 0;
+        public decimal? Dec1 { get; set; } = 0;
+        public decimal? Dec2 { get; set; } = 0;
+        public decimal? Dec3 { get; set; } = 0;
+        public decimal? Dec4 { get; set; } = 0;
+        public decimal? Dec5 { get; set; } = 0;
         public string Text1 { get; set; } = "";
         public string Text2 { get; set; } = "";
         public string Text3 { get; set; } = "";

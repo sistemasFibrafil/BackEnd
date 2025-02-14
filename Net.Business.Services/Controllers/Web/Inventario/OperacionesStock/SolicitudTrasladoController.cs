@@ -23,21 +23,6 @@ namespace Net.Business.Services.Controllers.Web.Inventario.OperacionesStock
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetNumber()
-        {
-            var response = await _repository.SolicitudTraslado.GetNumber();
-
-            if (response.ResultadoCodigo == -1)
-            {
-                return BadRequest(response);
-            }
-
-            return Ok(response.data);
-        }
-
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<IActionResult> GetListFiltro([FromQuery] FilterRequestDto value)
         {
             var objectGetAll = await _repository.SolicitudTraslado.GetListByFiltro(value.ReturnValue());
@@ -70,9 +55,40 @@ namespace Net.Business.Services.Controllers.Web.Inventario.OperacionesStock
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesDefaultResponseType]
+        public async Task<IActionResult> GetListById(int id)
+        {
+            var response = await _repository.SolicitudTraslado.GetListById(id);
+
+            if (response.ResultadoCodigo == -1)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response.dataList);
+        }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesDefaultResponseType]
         public async Task<IActionResult> GetSolicitudTrasladoToTransferencia(int id)
         {
             var response = await _repository.SolicitudTraslado.GetSolicitudTrasladoToTransferencia(id);
+
+            if (response.ResultadoCodigo == -1)
+            {
+                return BadRequest(response);
+            }
+
+            return Ok(response.data);
+        }
+
+        [HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> GetSolicitudTrasladoDetalleByIdAndLine([FromQuery] FilterRequestDto value)
+        {
+            var response = await _repository.SolicitudTraslado.GetSolicitudTrasladoDetalleByIdAndLine(value.ReturnValue());
 
             if (response.ResultadoCodigo == -1)
             {

@@ -209,8 +209,6 @@ namespace Net.Data.Sap
 
             return resultTransaccion;
         }
-
-
         public async Task<ResultadoTransaccionEntity<OrdenVentaSapByFechaEntity>> GetListOrdenVentaSeguimientoDetalladoByFecha(FilterRequestEntity value)
         {
             var response = new List<OrdenVentaSapByFechaEntity>();

@@ -60,8 +60,8 @@ namespace Net.Business.DTO.Web
                     WhsCode = linea.WhsCode,
                     UnitMsr = linea.UnitMsr,
                     Quantity = linea.Quantity,
-                    OpenQty = linea.OpenQty,
                     OpenQtyRding = linea.OpenQtyRding,
+                    OpenQty = linea.OpenQty,
                     IdUsuarioCreate = linea.IdUsuarioCreate,
                 });
             }

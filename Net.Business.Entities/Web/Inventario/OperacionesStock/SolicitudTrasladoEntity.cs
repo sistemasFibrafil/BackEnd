@@ -5,7 +5,6 @@ namespace Net.Business.Entities.Web
     public class SolicitudTrasladoEntity
     {
         public int Id { get; set; }
-        public string Number { get; set; } = null;
         public string ObjType { get; set; } = "1250000001";
         public int DocEntry { get; set; } = 0;
         public int DocNum { get; set; } = 0;
@@ -49,8 +48,8 @@ namespace Net.Business.Entities.Web
         public string WhsCode { get; set; }
         public string UnitMsr { get; set; }
         public decimal Quantity { get; set; }
-        public decimal OpenQty { get; set; }
         public decimal OpenQtyRding { get; set; }
+        public decimal OpenQty { get; set; }
         public int? IdUsuarioCreate { get; set; } = null;
         public int? IdUsuarioUpdate { get; set; } = null;
         public int? IdUsuarioClose { get; set; } = null;

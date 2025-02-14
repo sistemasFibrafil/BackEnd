@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Data;
+using System.Linq;
 using Net.Connection;
 using System.Transactions;
 using Net.Business.Entities;
@@ -436,24 +437,67 @@ namespace Net.Data.Web
                         foreach (var linea in value.Linea)
                         {
                             cmd.Parameters.Clear();
-                            cmd.Parameters.Add(new SqlParameter("@BaseType", linea.BaseType));
                             cmd.Parameters.Add(new SqlParameter("@IdBase", linea.IdBase));
                             cmd.Parameters.Add(new SqlParameter("@LineBase", linea.LineBase));
+                            cmd.Parameters.Add(new SqlParameter("@BaseType", linea.BaseType));
+                            cmd.Parameters.Add(new SqlParameter("@Read", linea.Read));
                             cmd.Parameters.Add(new SqlParameter("@Return", linea.Return));
-
-                            var lista = new List<LecturaCopyToTransferenciaDetalleEntity>();
 
                             using (var reader = await cmd.ExecuteReaderAsync())
                             {
-                                lista = (List<LecturaCopyToTransferenciaDetalleEntity>)context.ConvertTo<LecturaCopyToTransferenciaDetalleEntity>(reader);
-                            }
+                                var lista = (List<LecturaCopyToTransferenciaDetalleEntity1>)context.ConvertTo<LecturaCopyToTransferenciaDetalleEntity1>(reader);
 
-                            foreach (var line in lista)
-                            {
-                                response.Linea.Add(line);
+                                
+                                foreach (var line in lista)
+                                {
+                                    response.Linea1.Add(line);
+                                }
                             }
                         }
                     }
+
+                    response.Linea2 = response.Linea1
+                    .GroupBy
+                    (p => new
+                    {
+                        p.IdBase,
+                        p.LineBase,
+                        p.BaseType,
+                        p.BaseEntry,
+                        p.BaseLine,
+                        p.Read,
+                        p.ItemCode,
+                        p.Dscription,
+                        p.FromWhsCod,
+                        p.WhsCode,
+                        p.CodTipOperacion,
+                        p.NomTipOperacion,
+                        p.UnitMsr,
+                    })
+                    .Select
+                    (g => new LecturaCopyToTransferenciaDetalleEntity2
+                    {
+                        IdBase = g.Key.IdBase,
+                        LineBase = g.Key.LineBase,
+                        BaseType = g.Key.BaseType,
+                        BaseEntry = g.Key.BaseEntry,
+                        BaseLine = g.Key.BaseLine,
+                        Read = g.Key.Read,
+                        ItemCode = g.Key.ItemCode,
+                        Dscription = g.Key.Dscription,
+                        FromWhsCod = g.Key.FromWhsCod,
+                        WhsCode = g.Key.WhsCode,
+                        CodTipOperacion = g.Key.CodTipOperacion,
+                        NomTipOperacion = g.Key.NomTipOperacion,
+                        UnitMsr = g.Key.UnitMsr,
+                        Quantity = g.Sum(p => p.Quantity),
+                        OpenQty = g.Sum(p => p.OpenQty),
+                        Bulto = g.Sum(p => p.Bulto),
+                        Peso = g.Sum(p => p.Peso),
+                    })
+                    .OrderBy(x=>x.BaseEntry)
+                    .ThenBy(x=>x.BaseLine)
+                    .ToList();
 
                     resultTransaccion.IdRegistro = 0;
                     resultTransaccion.ResultadoCodigo = 0;

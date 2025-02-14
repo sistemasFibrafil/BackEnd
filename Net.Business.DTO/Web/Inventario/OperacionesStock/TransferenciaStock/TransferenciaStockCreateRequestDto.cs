@@ -12,6 +12,7 @@ namespace Net.Business.DTO.Web
         public DateTime DocDate { get; set; }
         public DateTime DocDueDate { get; set; }
         public DateTime TaxDate { get; set; }
+        public string Read { get; set; } = null;
         public string CardCode { get; set; } = null;
         public string CardName { get; set; } = null;
         public int CntctCode { get; set; } = 0;
@@ -100,6 +101,7 @@ namespace Net.Business.DTO.Web
                     BaseType = linea.BaseType,
                     BaseEntry = linea.BaseEntry,
                     BaseLine = linea.BaseLine,
+                    Read = linea.Read,
                     ItemCode = linea.ItemCode,
                     Dscription = linea.Dscription,
                     FromWhsCod = linea.FromWhsCod,
@@ -126,6 +128,7 @@ namespace Net.Business.DTO.Web
         public string BaseType { get; set; } = "-1";
         public int BaseEntry { get; set; }
         public int BaseLine { get; set; }
+        public string Read { get; set; }
         public string ItemCode { get; set; }
         public string Dscription { get; set; }
         public string FromWhsCod { get; set; }

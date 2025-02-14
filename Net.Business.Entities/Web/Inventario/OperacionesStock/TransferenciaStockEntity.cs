@@ -5,7 +5,6 @@ namespace Net.Business.Entities.Web
     public class TransferenciaStockEntity
     {
         public int Id { get; set; }
-        public string Number { get; set; } = null;
         public string ObjType { get; set; } = "67";
         public int DocEntry { get; set; } = 0;
         public int DocNum { get; set; } = 0;
@@ -66,12 +65,14 @@ namespace Net.Business.Entities.Web
         public string BaseType { get; set; } = "-1";
         public int BaseEntry { get; set; }
         public int BaseLine { get; set; }
+        public string Read { get; set; } = "N";
         public string LineStatus { get; set; }
         public string ItemCode { get; set; }
         public string Dscription { get; set; }
         public string FromWhsCod { get; set; }
         public string WhsCode { get; set; }
         public string CodTipOperacion { get; set; }
+        public string NomTipOperacion { get; set; }
         public string UnitMsr { get; set; }
         public decimal Quantity { get; set; }
         public decimal OpenQty { get; set; }
