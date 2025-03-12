@@ -976,6 +976,7 @@ namespace Net.Data.Sap
 
         public async Task<ResultadoTransaccionEntity<ArticuloSapForSodimacBySkuItemEntity>> GetArticuloForOrdenVentaSodimacBySku(ArticuloSapForSodimacBySkuEntity value)
         {
+            var linea = 1;
             var articulo = new ArticuloSapEntity();
             var response = new List<ArticuloSapForSodimacBySkuItemEntity>();
             var resultTransaccion = new ResultadoTransaccionEntity<ArticuloSapForSodimacBySkuItemEntity>();
@@ -1025,10 +1026,20 @@ namespace Net.Data.Sap
                         }
                     }
 
+                    _= value.Linea.OrderBy(static x => x.Line2).ToList();
+
+                    foreach (var item in value.Linea)
+                    {
+                        item.Line1 = linea;
+                        linea++;
+                    }
+
+                    _= value.Linea.OrderBy(static x => x.Line1).ToList();
+
                     resultTransaccion.IdRegistro = 0;
                     resultTransaccion.ResultadoCodigo = 0;
                     resultTransaccion.ResultadoDescripcion = string.Format("Registros Totales {0}", value.Linea.Count);
-                    resultTransaccion.dataList = value.Linea.OrderBy(x => x.Line).ToList();
+                    resultTransaccion.dataList = value.Linea;
                 }
             }
             catch (Exception ex)

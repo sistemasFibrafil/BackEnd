@@ -30,7 +30,6 @@ namespace Net.Data.Web
         }
 
 
-
         public async Task<ResultadoTransaccionEntity<StatusEntity>> GetList()
         {
             var response = new List<StatusEntity>();

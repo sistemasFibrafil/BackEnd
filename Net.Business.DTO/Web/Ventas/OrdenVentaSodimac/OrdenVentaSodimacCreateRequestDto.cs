@@ -19,7 +19,7 @@ namespace Net.Business.DTO.Web
         public string CntctName { get; set; } = null;
         public string Address { get; set; } = null;
         public int? IdUsuarioCreate { get; set; } = null;
-        public List<OrdenVentaDetalleSodimacDto> Item { get; set; } = new List<OrdenVentaDetalleSodimacDto>();
+        public List<OrdenVentaDetalleSodimacCreateRequestDto> Item { get; set; } = new List<OrdenVentaDetalleSodimacCreateRequestDto>();
 
         public OrdenVentaSodimacEntity ReturnValue()
         {
@@ -46,8 +46,9 @@ namespace Net.Business.DTO.Web
                 value.Item.Add(new OrdenVentaDetalleSodimacEntity()
                 {
                     Id = item.Id,
-                    Line = item.Line,
+                    Line2 = item.Line2,
                     NumLocal = item.NumLocal,
+                    IsOriente = item.IsOriente,
                     LineStatus = item.LineStatus,
                     ItemCode = item.ItemCode,
                     Sku = item.Sku,
@@ -62,11 +63,12 @@ namespace Net.Business.DTO.Web
         }
     }
 
-    public class OrdenVentaDetalleSodimacDto
+    public class OrdenVentaDetalleSodimacCreateRequestDto
     {
         public int Id { get; set; }
-        public int Line { get; set; }
+        public int Line2 { get; set; }
         public int NumLocal { get; set; }
+        public bool IsOriente { get; set; } = false;
         public string LineStatus { get; set; }
         public string ItemCode { get; set; }
         public string Sku { get; set; }

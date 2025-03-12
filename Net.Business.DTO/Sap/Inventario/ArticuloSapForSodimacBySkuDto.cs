@@ -13,7 +13,7 @@ namespace Net.Business.DTO.Sap
             {
                 value.Linea.Add(new ArticuloSapForSodimacBySkuItemEntity()
                 {
-                    Line = item.Line,
+                    Line2 = item.Line,
                     NumLocal = item.NumLocal,
                     NomLocal = item.NomLocal,
                     CodEstado = item.CodEstado,

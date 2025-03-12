@@ -2,27 +2,32 @@
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Data;
 using Net.Connection;
 using Net.CrossCotting;
+using System.Data.SqlClient;
 using Net.Business.Entities;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.DirectoryServices;
 using Net.Business.Entities.Web;
+using Net.Business.Entities.Sap;
 using System.Collections.Generic;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text.RegularExpressions;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.Extensions.Configuration;
 using System.DirectoryServices.AccountManagement;
 namespace Net.Data.Web
 {
     public class UsuarioRepository : RepositoryBase<UsuarioEntity>, IUsuarioRepository
     {
-        //private readonly string _cnx;
+        private readonly string _cnxSap;
         private readonly string _aplicacionName;
         private string _metodoName;
         private readonly Regex regex = new Regex(@"<(\w+)>.*");
+        private readonly ParametrosTokenConfig _tokenConfig;
 
         const string DB_ESQUEMA = "";
         const string SP_GET = DB_ESQUEMA + "SEG_GetUsuarioAll";
@@ -32,13 +37,15 @@ namespace Net.Data.Web
         const string SP_UPDATE_AUTOGENERADA = DB_ESQUEMA + "SEG_SetUsuarioUpdatePassword";
         const string SP_UPDATE_GENERAR_TOKEN = DB_ESQUEMA + "SEG_SetUsuarioUpdateToken";
         const string SP_UPDATE_PASSWORD = DB_ESQUEMA + "SEG_SetUsuarioUpdatePassword";
-        private readonly ParametrosTokenConfig tokenConfig;
 
-        public UsuarioRepository(IConnectionSQL context, IOptions<ParametrosTokenConfig> tokenConfig)
+        const string SP_GET_DETALLE_SOCIEDAD = DB_ESQUEMA + "GES_GetDetalleSociedad";
+
+        public UsuarioRepository(IConnectionSQL context, IConfiguration configuration, IOptions<ParametrosTokenConfig> tokenConfig)
             : base(context)
         {
-            this.tokenConfig = tokenConfig.Value;
+            _tokenConfig = tokenConfig.Value;
             _aplicacionName = GetType().Name;
+            _cnxSap = Utilidades.GetCon(configuration, "EntornoConnectionSap:Entorno");
         }
 
         public UsuarioRepository(IConnectionSQL context)
@@ -108,7 +115,7 @@ namespace Net.Data.Web
             }
 
             //SEMILLA
-            string semilla = tokenConfig.Semilla;
+            string semilla = _tokenConfig.Semilla;
 
             var claims = new[]
             {
@@ -121,8 +128,8 @@ namespace Net.Data.Web
 
             //generador de JWT
             var token = new JwtSecurityToken(
-                issuer: tokenConfig.Emisor,
-                audience: tokenConfig.Destinatario,
+                issuer: _tokenConfig.Emisor,
+                audience: _tokenConfig.Destinatario,
                 claims: claims,
                 expires: DateTime.Now.AddHours(10),
                 signingCredentials: signCredentials
@@ -151,7 +158,6 @@ namespace Net.Data.Web
             resultadoTransaccion.data = UsuarioAutenticar;
             return resultadoTransaccion;
         }
-
         public async Task<ResultadoTransaccionEntity<UsuarioDatosEntity>> ObtienePermisosPorUsuario(UsuarioDatosEntity entidad)
         {
             var claveDesEncriptada = EncriptaHelper.DecryptStringAES(entidad.Clave);
@@ -206,6 +212,8 @@ namespace Net.Data.Web
 
             var listaAccesoMenu = menuRepository.GetAllPorIdUsuario(user.IdUsuario).Result.ToList();
 
+            var detalleSociedad = await GetDetalleSociedad();
+
             UsuarioDatosEntity UsuarioAutenticar = new UsuarioDatosEntity
             {
                 Usuario = user.Usuario,
@@ -217,8 +225,16 @@ namespace Net.Data.Web
                 IdPerfil = user.IdPerfil,
                 CodSede = user.CodSede,
                 CodVendedorSAP = user.CodVendedorSAP,
-                ListaAccesoMenu = listaAccesoMenu,
-                WarehouseDefault = user.WarehouseDefault
+                CompnyName = detalleSociedad.data.CompnyName,
+                CompnyAddr = detalleSociedad.data.CompnyAddr,
+                PrintHeadr = detalleSociedad.data.PrintHeadr,
+                TaxIdNum = detalleSociedad.data.TaxIdNum,
+                Phone1 = detalleSociedad.data.Phone1,
+                Phone2 = detalleSociedad.data.Phone2,
+                MainCurncy = detalleSociedad.data.MainCurncy,
+                SysCurrncy = detalleSociedad.data.SysCurrncy,
+                WarehouseDefault = user.WarehouseDefault,
+                ListaAccesoMenu = listaAccesoMenu
             };
 
             resultadoTransaccion.ResultadoCodigo = 0;
@@ -507,6 +523,49 @@ namespace Net.Data.Web
                 }
             });
 
+        }
+
+        public async Task<ResultadoTransaccionEntity<DetalleSociedadSapEntity>> GetDetalleSociedad()
+        {
+            var response = new DetalleSociedadSapEntity();
+            var resultTransaccion = new ResultadoTransaccionEntity<DetalleSociedadSapEntity>();
+
+            _metodoName = regex.Match(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name).Groups[1].Value.ToString();
+
+            resultTransaccion.NombreMetodo = _metodoName;
+            resultTransaccion.NombreAplicacion = _aplicacionName;
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(_cnxSap))
+                {
+                    conn.Open();
+
+                    using (SqlCommand cmd = new SqlCommand(SP_GET_DETALLE_SOCIEDAD, conn))
+                    {
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandTimeout = 0;
+                        
+                        using (var reader = await cmd.ExecuteReaderAsync())
+                        {
+                            response = context.Convert<DetalleSociedadSapEntity>(reader);
+                        }
+                    }
+
+                    resultTransaccion.IdRegistro = 0;
+                    resultTransaccion.ResultadoCodigo = 0;
+                    resultTransaccion.ResultadoDescripcion = "Datos obtenidos con éxito ..!";
+                    resultTransaccion.data = response;
+                }
+            }
+            catch (Exception ex)
+            {
+                resultTransaccion.IdRegistro = -1;
+                resultTransaccion.ResultadoCodigo = -1;
+                resultTransaccion.ResultadoDescripcion = ex.Message.ToString();
+            }
+
+            return resultTransaccion;
         }
     }
 }

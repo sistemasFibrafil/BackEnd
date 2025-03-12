@@ -12,28 +12,12 @@ namespace Net.Business.Services.Controllers.Sap.FacturacionElectronica
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ApiExplorerSettings(GroupName = "ApiFibrafil")]
     [Authorize(AuthenticationSchemes = "Bearer")]
-    public class FacturacionElectronicaSapController : Controller
+    public class GuiaElectronicaSapController : Controller
     {
         private readonly IRepositoryWrapper _repository;
-        public FacturacionElectronicaSapController(IRepositoryWrapper repository)
+        public GuiaElectronicaSapController(IRepositoryWrapper repository)
         {
             _repository = repository;
-        }
-
-
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> GetListGuiaElectronicaByFiltro([FromQuery] FilterRequestDto value)
-        {
-            var objectGetList = await _repository.FacturacionElectronicaSap.GetListGuiaElectronicaByFiltro(value.ReturnValue());
-
-            if (objectGetList.ResultadoCodigo == -1)
-            {
-                return BadRequest(objectGetList);
-            }
-
-            return Ok(objectGetList.dataList);
         }
 
         [HttpPut]
@@ -48,7 +32,7 @@ namespace Net.Business.Services.Controllers.Sap.FacturacionElectronica
                     return BadRequest(ModelState);
                 }
 
-                var response = await _repository.FacturacionElectronicaSap.SetEnviar(value.ReturnValue());
+                var response = await _repository.GuiaElectronicaSap.SetEnviar(value.ReturnValue());
 
                 if (response.ResultadoCodigo == -1)
                 {

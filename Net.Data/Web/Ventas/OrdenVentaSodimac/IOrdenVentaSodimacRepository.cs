@@ -7,6 +7,7 @@ namespace Net.Data.Web
     public interface IOrdenVentaSodimacRepository
     {
         Task<ResultadoTransaccionEntity<OrdenVentaSodimacEntity>> SetCreate(OrdenVentaSodimacEntity value);
+        Task<ResultadoTransaccionEntity<OrdenVentaSodimacEntity>> SetUpdate(OrdenVentaSodimacEntity value);
         Task<ResultadoTransaccionEntity<OrdenVentaSodimacByFiltroEntity>> GetListOrdenVentaSodimacByFiltro(FilterRequestEntity value);
         Task<ResultadoTransaccionEntity<OrdenVentaSodimacEntity>> GetOrdenVentaSodimacById(int id);
         Task<ResultadoTransaccionEntity<OrdenVentaSodimaConsultaFiltroEntity>> GetListOrdenVentaSodimacPendienteLpnByFiltro(FilterRequestEntity value);

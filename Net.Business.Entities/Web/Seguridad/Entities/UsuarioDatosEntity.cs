@@ -14,6 +14,14 @@ namespace Net.Business.Entities.Web
         public int? CodSede { get; set; }
         public int? CodVendedorSAP { get; set; }
         public string WarehouseDefault { get; set; }
+        public string CompnyName { get; set; }
+        public string CompnyAddr { get; set; }
+        public string PrintHeadr { get; set; }
+        public string TaxIdNum { get; set; }
+        public string Phone1 { get; set; }
+        public string Phone2 { get; set; }
+        public string MainCurncy { get; set; }
+        public string SysCurrncy { get; set; }
         public List<MenuEntity> ListaAccesoMenu { get; set; }
     }
 }

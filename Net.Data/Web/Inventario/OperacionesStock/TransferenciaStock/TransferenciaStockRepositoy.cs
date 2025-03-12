@@ -12,6 +12,7 @@ using Net.Business.Entities.Web;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
+using DocumentFormat.OpenXml.Office2010.Word;
 namespace Net.Data.Web
 {
     public class TransferenciaStockRepositoy : RepositoryBase<TransferenciaStockEntity>, ITransferenciaStockRepositoy
@@ -73,6 +74,7 @@ namespace Net.Data.Web
                         cmd.Parameters.Add(new SqlParameter("@FI", value.Dat1));
                         cmd.Parameters.Add(new SqlParameter("@FF", value.Dat2));
                         cmd.Parameters.Add(new SqlParameter("@Estado", value.Cod1));
+                        cmd.Parameters.Add(new SqlParameter("@Numero", value.Text1));
 
                         using (var reader = await cmd.ExecuteReaderAsync())
                         {
@@ -576,6 +578,7 @@ namespace Net.Data.Web
                             cmd.CommandTimeout = 0;
                             // CABECERA
                             cmd.Parameters.Add(new SqlParameter("@Id", value.Id));
+                            cmd.Parameters.Add(new SqlParameter("@DocDueDate", value.DocDueDate));
                             // CLIENTE
                             // ALMACÉN
                             // TRANSPORTISTA
@@ -619,6 +622,7 @@ namespace Net.Data.Web
                             // ===========================================================================================
                             // CABECERA
                             // ===========================================================================================
+                            documentUpd.DueDate = value.DocDueDate;
                             documentUpd.DocObjectCode = BoObjectTypes.oInventoryTransferRequest;
                             // ===========================================================================================
                             // SOCIO DE NEGOCIO

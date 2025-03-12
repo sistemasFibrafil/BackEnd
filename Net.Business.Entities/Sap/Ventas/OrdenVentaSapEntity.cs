@@ -9,11 +9,12 @@ namespace Net.Business.Entities.Sap
 
     public class OrdenVentaSapByFechaEntity
     {
+        public int DocEntry { get; set; }
         public string CodTipDocumento { get; set; }
         public string NomTipDocumento { get; set; }
         public int NumeroDocumento { get; set; }
         public int NumeroPedido { get; set; }
-        public string NumeroOrdenVenta { get; set; }
+        public string NumeroOrdenCompra { get; set; }
         public int? NumeroFactura { get; set; } = null;
         public int LineNum { get; set; }
         public DateTime DocDate { get; set; }
@@ -31,6 +32,7 @@ namespace Net.Business.Entities.Sap
         public string Ciudad { get; set; }
         public string ItemCode { get; set; }
         public string ItemName { get; set; }
+        public string NomLinNegocio { get; set; }
         public int CodGrupoArticulo { get; set; }
         public string NomGrupoArticulo { get; set; }
         public string NomSubGrupoArticulo { get; set; }
@@ -55,6 +57,7 @@ namespace Net.Business.Entities.Sap
         public decimal KgPedido { get; set; }
         public decimal ToneladaPedida { get; set; }
         public decimal OpenQty { get; set; }
+        public decimal LineTotEarring { get; set; }
         public decimal RolloPendiente { get; set; }
         public decimal KgPendiente { get; set; }
         public decimal ToneladaPendiente { get; set; }

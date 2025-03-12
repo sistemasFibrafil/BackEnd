@@ -7,7 +7,5 @@ namespace Net.Data.Sap
     {
         Task<ResultadoTransaccionEntity<FacturacionElectronicaSapEntity>> GetListGuiaElectronicaByFiltro(FilterRequestEntity value);
         Task<ResultadoTransaccionEntity<FacturacionElectronicaSapEntity>> SetEnviar(FilterRequestEntity value);
-        Task<ResultadoTransaccionEntity<FacturacionElectronicaSapEntity>> GetListGuiaInternaElectronicaByFiltro(FilterRequestEntity value);
-        Task<ResultadoTransaccionEntity<FacturacionElectronicaSapEntity>> SendGuiaInternaElectronica(FilterRequestEntity value);
     }
 }

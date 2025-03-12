@@ -92,9 +92,11 @@ namespace Net.Business.Entities.Sap
 
     public class ArticuloSapForSodimacBySkuItemEntity
     {
-        public int Line { get; set; }
+        public int Line1 { get; set; }
+        public int Line2 { get; set; }
         public int NumLocal { get; set; }
         public string NomLocal { get; set; }
+        public bool IsOriente { get; set; } = false;
         public string CodEstado { get; set; }
         public string ItemCode { get; set; }
         public string Sku { get; set; }

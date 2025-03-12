@@ -24,14 +24,15 @@ namespace Net.Data.Web
         private readonly Regex regex = new Regex(@"<(\w+)>.*");
 
         // PARAMETROS DE COXIÓN
-        private readonly IConfiguration _configuration;
-        private readonly IConnectionSap _connectionSap;
-        private readonly ConnectionSapEntity _cnnDiApiSap;
+        //private readonly IConfiguration _configuration;
 
         // STORED PROCEDURE
         const string DB_ESQUEMA = "";
         const string SP_SET_CREATE = DB_ESQUEMA + "VEN_SetOrdenVentaSodimacCreate";
         const string SP_SET_DETALLE_CREATE = DB_ESQUEMA + "VEN_SetOrdenVentaSodimacDetalleCreate";
+        const string SP_SET_UPDATE = DB_ESQUEMA + "VEN_SetOrdenVentaSodimacUpdate";
+        const string SP_SET_DETALLE_UPDATE = DB_ESQUEMA + "VEN_SetOrdenVentaSodimacDetalleUpdate";
+
         const string SP_GET_BY_ID = DB_ESQUEMA + "VEN_GetListOrdenVentaSodimacById";
         const string SP_GET_DETALLE_BY_ID = DB_ESQUEMA + "VEN_GetListOrdenVentaSodimacDetalleById";
 
@@ -55,8 +56,6 @@ namespace Net.Data.Web
             : base(context)
         {
             _aplicacionName = GetType().Name;
-            _connectionSap = new ConnectionSap();
-            _cnnDiApiSap = Utilidades.GetConDiApiSap(configuration, "EntornoConnectionDiApiSap:Entorno");
         }
 
 
@@ -117,14 +116,87 @@ namespace Net.Data.Web
                                 {
                                     cmd.Parameters.Clear();
                                     cmd.Parameters.Add(new SqlParameter("@Id", item.Id));
-                                    cmd.Parameters.Add(new SqlParameter("@Line", item.Line));
+                                    cmd.Parameters.Add(new SqlParameter("@Line2", item.Line2));
                                     cmd.Parameters.Add(new SqlParameter("@NumLocal", item.NumLocal));
+                                    cmd.Parameters.Add(new SqlParameter("@IsOriente", item.IsOriente));
                                     cmd.Parameters.Add(new SqlParameter("@ItemCode", item.ItemCode));
                                     cmd.Parameters.Add(new SqlParameter("@Sku", item.Sku));
                                     cmd.Parameters.Add(new SqlParameter("@Dscription", item.Dscription));
                                     cmd.Parameters.Add(new SqlParameter("@DscriptionLarga", item.DscriptionLarga));
                                     cmd.Parameters.Add(new SqlParameter("@Ean", item.Ean));
                                     cmd.Parameters.Add(new SqlParameter("@Quantity", item.Quantity));
+
+                                    await cmd.ExecuteNonQueryAsync();
+                                }
+                            }
+
+                            resultadoTransaccion.IdRegistro = 0;
+                            resultadoTransaccion.ResultadoCodigo = 0;
+                            resultadoTransaccion.ResultadoDescripcion = "Registro creado con éxito ..!";
+
+                            transaction.Commit();
+                        }
+                        catch (Exception ex)
+                        {
+                            transaction.Rollback();
+                            resultadoTransaccion.IdRegistro = -1;
+                            resultadoTransaccion.ResultadoCodigo = -1;
+                            resultadoTransaccion.ResultadoDescripcion = ex.Message.ToString();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                resultadoTransaccion.IdRegistro = -1;
+                resultadoTransaccion.ResultadoCodigo = -1;
+                resultadoTransaccion.ResultadoDescripcion = ex.Message.ToString();
+            }
+
+            return resultadoTransaccion;
+        }
+
+        public async Task<ResultadoTransaccionEntity<OrdenVentaSodimacEntity>> SetUpdate(OrdenVentaSodimacEntity value)
+        {
+            var resultadoTransaccion = new ResultadoTransaccionEntity<OrdenVentaSodimacEntity>();
+
+            _metodoName = regex.Match(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name).Groups[1].Value.ToString();
+
+            resultadoTransaccion.NombreMetodo = _metodoName;
+            resultadoTransaccion.NombreAplicacion = _aplicacionName;
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(context.GetConnectionSQL()))
+                {
+                    using (CommittableTransaction transaction = new CommittableTransaction())
+                    {
+                        await conn.OpenAsync();
+                        conn.EnlistTransaction(transaction);
+
+                        try
+                        {
+                            using (SqlCommand cmd = new SqlCommand(SP_SET_UPDATE, conn))
+                            {
+                                cmd.CommandType = CommandType.StoredProcedure;
+                                cmd.CommandTimeout = 0;
+                                cmd.Parameters.Add(new SqlParameter("@Id", value.Id));
+                                cmd.Parameters.Add(new SqlParameter("@IdUsuarioUpdate", value.IdUsuarioUpdate));
+
+                                await cmd.ExecuteNonQueryAsync();
+                            }
+
+                            using (SqlCommand cmd = new SqlCommand(SP_SET_DETALLE_UPDATE, conn))
+                            {
+                                cmd.CommandType = CommandType.StoredProcedure;
+                                cmd.CommandTimeout = 0;
+
+                                foreach (var item in value.Item)
+                                {
+                                    cmd.Parameters.Clear();
+                                    cmd.Parameters.Add(new SqlParameter("@Id", item.Id));
+                                    cmd.Parameters.Add(new SqlParameter("@Line2", item.Line2));
+                                    cmd.Parameters.Add(new SqlParameter("@IsOriente", item.IsOriente));
 
                                     await cmd.ExecuteNonQueryAsync();
                                 }
@@ -430,7 +502,7 @@ namespace Net.Data.Web
                                 {
                                     cmdItem.Parameters.Clear();
                                     cmdItem.Parameters.Add(new SqlParameter("@Id", item.Id));
-                                    cmdItem.Parameters.Add(new SqlParameter("@Line", item.Line));
+                                    cmdItem.Parameters.Add(new SqlParameter("@Line1", item.Line1));
                                     cmdItem.Parameters.Add(new SqlParameter("@NumLocal", item.NumLocal));
                                     cmdItem.Parameters.Add(new SqlParameter("@Lpn", responseItem.Lpn));
 

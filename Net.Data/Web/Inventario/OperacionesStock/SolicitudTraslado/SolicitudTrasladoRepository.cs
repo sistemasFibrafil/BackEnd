@@ -9,7 +9,6 @@ using Net.Business.Entities;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Net.Business.Entities.Web;
-using Net.Business.Entities.Sap;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
@@ -80,6 +79,7 @@ namespace Net.Data.Web
                         cmd.Parameters.Add(new SqlParameter("@FI", value.Dat1));
                         cmd.Parameters.Add(new SqlParameter("@FF", value.Dat2));
                         cmd.Parameters.Add(new SqlParameter("@Estado", value.Cod1));
+                        cmd.Parameters.Add(new SqlParameter("@Numero", value.Text1));
 
                         using (var reader = await cmd.ExecuteReaderAsync())
                         {
@@ -302,7 +302,6 @@ namespace Net.Data.Web
         }
         public async Task<ResultadoTransaccionEntity<SolicitudTrasladoEntity>> SetCreate(SolicitudTrasladoEntity value)
         {
-            var responde = new SolicitudTrasladoSapEntity();
             var resultTransaccion = new ResultadoTransaccionEntity<SolicitudTrasladoEntity>();
 
             _metodoName = regex.Match(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name).Groups[1].Value.ToString();
@@ -558,7 +557,6 @@ namespace Net.Data.Web
         }
         public async Task<ResultadoTransaccionEntity<SolicitudTrasladoEntity>> SetUpdate(SolicitudTrasladoEntity value)
         {
-            var responde = new SolicitudTrasladoSapEntity();
             var resultTransaccion = new ResultadoTransaccionEntity<SolicitudTrasladoEntity>();
 
             _metodoName = regex.Match(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name).Groups[1].Value.ToString();
@@ -857,7 +855,6 @@ namespace Net.Data.Web
         }
         public async Task<ResultadoTransaccionEntity<SolicitudTrasladoEntity>> SetClose(SolicitudTrasladoEntity value)
         {
-            var responde = new SolicitudTrasladoSapEntity();
             var resultadoTransaccion = new ResultadoTransaccionEntity<SolicitudTrasladoEntity>();
 
             _metodoName = regex.Match(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name).Groups[1].Value.ToString();

@@ -1,4 +1,5 @@
 ﻿using Net.Business.Entities.Web;
+using System;
 using System.Collections.Generic;
 namespace Net.Business.DTO.Web
 {
@@ -6,7 +7,7 @@ namespace Net.Business.DTO.Web
     {
         public int Id { get; set; }
         public int DocEntry { get; set; }
-
+        public DateTime DocDueDate { get; set; }
         public string CodTipTransporte { get; set; }
         public string CodTipDocTransportista { get; set; }
         public string NumTipoDocTransportista { get; set; }
@@ -39,6 +40,7 @@ namespace Net.Business.DTO.Web
             {
                 Id = Id,
                 DocEntry = DocEntry,
+                DocDueDate = DocDueDate,
 
                 CodTipTransporte = CodTipTransporte,
                 CodTipDocTransportista = CodTipDocTransportista,

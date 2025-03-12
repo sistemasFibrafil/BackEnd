@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Net.Business.Entities;
 using System.Threading.Tasks;
-namespace Net.Data.Web.Ventas.PickingList
+namespace Net.Data.Web
 {
     public interface IPickingListRepository
     {

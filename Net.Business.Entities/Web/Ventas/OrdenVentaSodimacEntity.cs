@@ -25,8 +25,10 @@ namespace Net.Business.Entities.Web
     public class OrdenVentaDetalleSodimacEntity
     {
         public int Id { get; set; }
-        public int Line { get; set; }
+        public int Line1 { get; set; }
+        public int Line2 { get; set; }
         public int NumLocal { get; set; }
+        public bool IsOriente { get; set; } = false;
         public string NomLocal { get; set; }
         public string LineStatus { get; set; }
         public string ItemCode { get; set; }

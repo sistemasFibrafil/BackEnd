@@ -5,7 +5,6 @@ using System.Net.Http;
 using Net.CrossCotting;
 using Microsoft.Extensions.Options;
 using Microsoft.Extensions.Configuration;
-using Net.Data.Web.Ventas.PickingList;
 namespace Net.Data
 {
     public class RepositoryWrapper: IRepositoryWrapper
@@ -44,6 +43,7 @@ namespace Net.Data
         /// </summary>
         private ISedeRepository _sede;
         private IStatusRepository _status;
+        private ITiempoRepository _tiempo;
         private IFormularioRepository _formulario;
         private ITipoDocumentoRepository _tipoDocumento;
         private ISerieNumeracionRepository _serieNumeracion;
@@ -59,6 +59,7 @@ namespace Net.Data
         /// <summary>
         /// VENTAS
         /// </summary>
+        private ISopRepository _sop;
         private IPickingListRepository _pickingList;
         private IOrdenVentaSodimacRepository _ordenVentaSodimac;
 
@@ -118,6 +119,7 @@ namespace Net.Data
         /// <summary>
         /// FACTURACIÓN ELECTRÓNICA
         /// </summary>
+        IGuiaElectronicaSapRepository _guiaElectronicaSap;
         IFacturacionElectronicaSapRepositoy _facturacionElectronicaSap;
 
         /// <summary>
@@ -194,7 +196,7 @@ namespace Net.Data
             {
                 if (_usuario == null)
                 {
-                    _usuario = new UsuarioRepository(_repoContext, _tokenConfig);
+                    _usuario = new UsuarioRepository(_repoContext, _configuration, _tokenConfig);
                 }
                 return _usuario;
             }
@@ -291,6 +293,17 @@ namespace Net.Data
                 return _status;
             }
         }
+        public ITiempoRepository Tiempo
+        {
+            get
+            {
+                if (_tiempo == null)
+                {
+                    _tiempo = new TiempoRepository(_repoContext);
+                }
+                return _tiempo;
+            }
+        }
         public IFormularioRepository Formulario
         {
             get
@@ -376,6 +389,17 @@ namespace Net.Data
         /// <summary>
         /// VENTAS
         /// </summary>
+        public ISopRepository Sop
+        {
+            get
+            {
+                if (_sop == null)
+                {
+                    _sop = new SopRepository(_repoContext, _configuration);
+                }
+                return _sop;
+            }
+        }
         public IPickingListRepository PickingList
         {
             get
@@ -734,6 +758,17 @@ namespace Net.Data
                     _facturacionElectronicaSap = new FacturacionElectronicaSapRepositoy(_repoContext, _configuration);
                 }
                 return _facturacionElectronicaSap;
+            }
+        }
+        public IGuiaElectronicaSapRepository GuiaElectronicaSap
+        {
+            get
+            {
+                if (_guiaElectronicaSap == null)
+                {
+                    _guiaElectronicaSap = new GuiaElectronicaSapRepository(_repoContext, _configuration);
+                }
+                return _guiaElectronicaSap;
             }
         }
 

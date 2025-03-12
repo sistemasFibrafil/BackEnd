@@ -1,6 +1,5 @@
 ﻿using Net.Data.Sap;
 using Net.Data.Web;
-using Net.Data.Web.Ventas.PickingList;
 namespace Net.Data
 {
     public interface IRepositoryWrapper
@@ -30,6 +29,7 @@ namespace Net.Data
         /// </summary>
         ISedeRepository Sede { get; }
         IStatusRepository Status { get; }
+        ITiempoRepository Tiempo { get; }
         IFormularioRepository Formulario { get; }
         ITipoDocumentoRepository TipoDocumento { get; }
         ISerieNumeracionRepository SerieNumeracion { get; }
@@ -45,6 +45,7 @@ namespace Net.Data
         /// <summary>
         /// VENTAS
         /// </summary>
+        ISopRepository Sop { get; }
         IPickingListRepository PickingList { get; }
         IOrdenVentaSodimacRepository OrdenVentaSodimac { get; }
 
@@ -104,6 +105,7 @@ namespace Net.Data
         /// <summary>
         /// FACTURACIÓN ELECTRÓNICA
         /// </summary>
+        IGuiaElectronicaSapRepository GuiaElectronicaSap { get; }
         IFacturacionElectronicaSapRepositoy FacturacionElectronicaSap { get; }
 
         /// <summary>

@@ -1,10 +1,13 @@
-﻿using Net.Data;
+﻿using System;
+using Net.Data;
 using Net.Business.DTO;
 using Net.Business.DTO.Web;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Authorization;
+using DocumentFormat.OpenXml.Office2010.Excel;
+using System.IO;
 namespace Net.Business.Services.Controllers.Web.Inventario.OperacionesStock
 {
     [Route("api/[controller]/[action]")]
@@ -164,6 +167,25 @@ namespace Net.Business.Services.Controllers.Web.Inventario.OperacionesStock
             }
 
             return Ok(objectGetAll.data);
+        }
+
+        [HttpGet]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(404)]
+        [ProducesDefaultResponseType]
+        public async Task<FileContentResult> GetPackingListPdfByTargetTypeTrgetEntry([FromQuery] FilterRequestDto value)
+        {
+            var objectGetByTargetTypeTrgetEntry = await _repository.Lectura.GetPackingListPdfByTargetTypeTrgetEntry(value.ReturnValue());
+
+            if (objectGetByTargetTypeTrgetEntry.IdRegistro == -1)
+            {
+                throw new FileNotFoundException(objectGetByTargetTypeTrgetEntry.ResultadoDescripcion);
+            }
+
+            var nombreArchivo = string.Format("Packing List - {0}", DateTime.Now.ToString("dd-MM-yyyy").ToString());
+
+            var pdf = File(objectGetByTargetTypeTrgetEntry.data.GetBuffer(), "applicacion/pdf", nombreArchivo + ".pdf");
+            return pdf;
         }
     }
 }

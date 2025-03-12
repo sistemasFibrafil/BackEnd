@@ -1,18 +1,20 @@
-﻿using Net.Business.Entities.Web;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using Net.Business.Entities.Web;
+
 namespace Net.Business.DTO.Web
 {
-    public class OrdenVentaSodimacLpnUpdateRequestDto
+    public class OrdenVentaSodimacUpdateRequestDto
     {
         public int Id { get; set; }
-        public string Numero { get; set; }
-        public List<OrdenVentaDetalleSodimacLpnUpdateRequestDto> Item { get; set; } = new List<OrdenVentaDetalleSodimacLpnUpdateRequestDto>();
+        public int IdUsuarioUpdate { get; set; }
+        public List<OrdenVentaDetalleSodimacUpdateRequestDto> Item { get; set; } = new List<OrdenVentaDetalleSodimacUpdateRequestDto>();
 
         public OrdenVentaSodimacEntity ReturnValue()
         {
             var value = new OrdenVentaSodimacEntity()
             {
                 Id = this.Id,
+                IdUsuarioUpdate = this.IdUsuarioUpdate
             };
 
             foreach (var item in Item)
@@ -21,7 +23,7 @@ namespace Net.Business.DTO.Web
                 {
                     Id = item.Id,
                     Line1 = item.Line1,
-                    NumLocal = item.NumLocal,
+                    IsOriente = item.IsOriente,
                 });
             }
 
@@ -29,10 +31,10 @@ namespace Net.Business.DTO.Web
         }
     }
 
-    public class OrdenVentaDetalleSodimacLpnUpdateRequestDto
+    public class OrdenVentaDetalleSodimacUpdateRequestDto
     {
         public int Id { get; set; }
         public int Line1 { get; set; }
-        public int NumLocal { get; set; }
+        public bool IsOriente { get; set; } = false;
     }
 }

@@ -10,7 +10,7 @@ using Net.Business.Entities.Web;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
-namespace Net.Data.Web.Ventas.PickingList
+namespace Net.Data.Web
 {
     public class PickingListRepository : RepositoryBase<PickingListEntity>, IPickingListRepository
     {
@@ -21,7 +21,6 @@ namespace Net.Data.Web.Ventas.PickingList
         // PARAMETROS DE COXIÓN
         private readonly IConfiguration _configuration;
         private readonly IConnectionSap _connectionSap;
-        private readonly ConnectionSapEntity _cnnDiApiSap;
 
         // STORED PROCEDURE
         const string DB_ESQUEMA = "";
@@ -33,7 +32,6 @@ namespace Net.Data.Web.Ventas.PickingList
         {
             _aplicacionName = GetType().Name;
             _connectionSap = new ConnectionSap();
-            _cnnDiApiSap = Utilidades.GetConDiApiSap(configuration, "EntornoConnectionDiApiSap:Entorno");
         }
 
         public async Task<ResultadoTransaccionEntity<MemoryStream>> GetListPickingPdfByDocEntry(int docEntry)

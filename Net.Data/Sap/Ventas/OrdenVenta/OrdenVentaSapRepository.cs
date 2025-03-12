@@ -33,7 +33,7 @@ namespace Net.Data.Sap
         const string SP_GET_LIST_PROGRAMACION_BY_FECHA = DB_ESQUEMA + "VEN_GetListOrdenVentaProgramacionByFecha";
 
         const string SP_GET_LIST_SODIMAC_BY_FILTRO = DB_ESQUEMA + "VEN_GetListOrdenVentaSodimacPendienteByFiltro";
-        const string SP_GET_LIST_SODIMAC_BY_ID = DB_ESQUEMA + "VEN_GetOrdenVentaSodimacPendienteById";
+        const string SP_GET_SODIMAC_BY_ID = DB_ESQUEMA + "VEN_GetOrdenVentaSodimacPendienteById";
 
 
         public OrdenVentaSapRepository(IConnectionSQL context, IConfiguration configuration)
@@ -68,8 +68,9 @@ namespace Net.Data.Sap
                         cmd.Parameters.Add(new SqlParameter("@FI", value.Dat1));
                         cmd.Parameters.Add(new SqlParameter("@FF", value.Dat2));
                         cmd.Parameters.Add(new SqlParameter("@GrupoCliente", value.Cod1));
-                        cmd.Parameters.Add(new SqlParameter("@TipDocumento", value.Cod2));
-                        cmd.Parameters.Add(new SqlParameter("@Status", value.Cod3));
+                        cmd.Parameters.Add(new SqlParameter("@EmpleadoVenta", value.Cod2));
+                        cmd.Parameters.Add(new SqlParameter("@TipDocumento", value.Cod3));
+                        cmd.Parameters.Add(new SqlParameter("@Status", value.Cod4));
                         cmd.Parameters.Add(new SqlParameter("@Filtro", value.Text1));
 
                         using (var reader = await cmd.ExecuteReaderAsync())
@@ -232,8 +233,9 @@ namespace Net.Data.Sap
                         cmd.Parameters.Add(new SqlParameter("@FI", value.Dat1));
                         cmd.Parameters.Add(new SqlParameter("@FF", value.Dat2));
                         cmd.Parameters.Add(new SqlParameter("@GrupoCliente", value.Cod1));
-                        cmd.Parameters.Add(new SqlParameter("@TipDocumento", value.Cod2));
-                        cmd.Parameters.Add(new SqlParameter("@Status", value.Cod3));
+                        cmd.Parameters.Add(new SqlParameter("@EmpleadoVenta", value.Cod2));
+                        cmd.Parameters.Add(new SqlParameter("@TipDocumento", value.Cod3));
+                        cmd.Parameters.Add(new SqlParameter("@Status", value.Cod4));
                         cmd.Parameters.Add(new SqlParameter("@Filtro", value.Text1));
 
                         using (var reader = await cmd.ExecuteReaderAsync())
@@ -296,7 +298,7 @@ namespace Net.Data.Sap
                     ExportToExcel.ConstructCell("Tipo Documento", CellValues.String),
                     ExportToExcel.ConstructCell("Número Documento", CellValues.String),
                     ExportToExcel.ConstructCell("Número Pedido", CellValues.String),
-                    ExportToExcel.ConstructCell("Número Órden Venta", CellValues.String),
+                    ExportToExcel.ConstructCell("Número Órden Compra", CellValues.String),
                     ExportToExcel.ConstructCell("Número Factura", CellValues.String),
                     ExportToExcel.ConstructCell("Número Línea", CellValues.String),
                     ExportToExcel.ConstructCell("Fecha Contabilización", CellValues.String),
@@ -329,6 +331,7 @@ namespace Net.Data.Sap
                     ExportToExcel.ConstructCell("Rollo Pendiente", CellValues.String),
                     ExportToExcel.ConstructCell("Kg Pendiente", CellValues.String),
                     ExportToExcel.ConstructCell("Tonelada Pendiente", CellValues.String),
+                    ExportToExcel.ConstructCell("Importe Pendiente USD", CellValues.String),
                     ExportToExcel.ConstructCell("Cantidad Despachada", CellValues.String),
                     ExportToExcel.ConstructCell("Moneda", CellValues.String),
                     ExportToExcel.ConstructCell("TC", CellValues.String),
@@ -367,7 +370,7 @@ namespace Net.Data.Sap
                         ExportToExcel.ConstructCell(item.NomTipDocumento.ToString(), CellValues.String),
                         ExportToExcel.ConstructCell(item.NumeroDocumento.ToString(), CellValues.Number),
                         ExportToExcel.ConstructCell(item.NumeroPedido.ToString(), CellValues.Number),
-                        ExportToExcel.ConstructCell(item.NumeroOrdenVenta, CellValues.String),
+                        ExportToExcel.ConstructCell(item.NumeroOrdenCompra, CellValues.String),
                         ExportToExcel.ConstructCell(item.NumeroFactura == null ? null : item.NumeroFactura.ToString(), CellValues.Number),
                         ExportToExcel.ConstructCell(item.LineNum.ToString(), CellValues.Number),
                         ExportToExcel.ConstructCell(item.DocDate.ToString("dd/MM/yyyy"), CellValues.String),
@@ -400,6 +403,7 @@ namespace Net.Data.Sap
                         ExportToExcel.ConstructCell(item.RolloPendiente.ToString(), CellValues.Number),
                         ExportToExcel.ConstructCell(item.KgPendiente.ToString(), CellValues.Number),
                         ExportToExcel.ConstructCell(item.ToneladaPendiente.ToString(), CellValues.Number),
+                        ExportToExcel.ConstructCell(item.LineTotEarring.ToString(), CellValues.Number),
                         ExportToExcel.ConstructCell(item.DelivrdQty.ToString(), CellValues.Number),
                         ExportToExcel.ConstructCell(item.Currency, CellValues.String),
                         ExportToExcel.ConstructCell(item.Rate.ToString(), CellValues.Number),
@@ -854,7 +858,7 @@ namespace Net.Data.Sap
                 {
                     conn.Open();
 
-                    using (SqlCommand cmd = new SqlCommand(SP_GET_LIST_SODIMAC_BY_ID, conn))
+                    using (SqlCommand cmd = new SqlCommand(SP_GET_SODIMAC_BY_ID, conn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandTimeout = 0;

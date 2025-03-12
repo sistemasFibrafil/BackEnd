@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Net.Business.DTO.Web;
 using Net.Business.DTO;
 using System.IO;
+using Net.Business.DTO.Web.Ventas.Sop;
 namespace Net.Business.Services.Controllers.Web.Ventas
 {
     [Route("api/[controller]/[action]")]
@@ -39,6 +40,31 @@ namespace Net.Business.Services.Controllers.Web.Ventas
             }
 
             var objectNew = await _repository.OrdenVentaSodimac.SetCreate(value.ReturnValue());
+
+            if (objectNew.ResultadoCodigo == -1)
+            {
+                return BadRequest(objectNew);
+            }
+
+            return NoContent();
+        }
+
+        [HttpPut]
+        [ProducesResponseType(204)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> SetUpdate([FromBody] OrdenVentaSodimacUpdateRequestDto value)
+        {
+            if (value == null)
+            {
+                return BadRequest("No hay registros a actualizar ..!");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Modelo no válido ..!");
+            }
+
+            var objectNew = await _repository.OrdenVentaSodimac.SetUpdate(value.ReturnValue());
 
             if (objectNew.ResultadoCodigo == -1)
             {

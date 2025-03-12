@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 namespace Net.Data.Sap
 {
-    public class FacturacionElectronicaSapRepositoy : RepositoryBase<FacturacionElectronicaSapEntity>, IFacturacionElectronicaSapRepositoy
+    public class GuiaElectronicaSapRepository : RepositoryBase<GuiaElectronicaSapEntity>, IGuiaElectronicaSapRepository
     {
         private string _metodoName;
         private string _aplicacionName;
@@ -25,22 +25,16 @@ namespace Net.Data.Sap
 
         // STORED PROCEDURE
         const string DB_ESQUEMA = "";
-        const string SP_GET_LIST_GUIA_ELECTRONICA_BY_FILTRO = DB_ESQUEMA + "VEN_GetListGuiaElectronicaByFiltro";
-        const string SP_GET_GUIA_ELECTRONICA_BY_ID = DB_ESQUEMA + "VEN_GetGuiaElectronicaById";
-        const string SP_GET_LIST_GUIA_DETALLE_ELECTRONICA_BY_ID = DB_ESQUEMA + "VEN_GetListGuiaDetalleElectronicaById";
-        
+        const string SP_GET_GUIA_ELECTRONICA = DB_ESQUEMA + "VEN_GetGuiaElectronicaById";
+        const string SP_GET_LIST_GUIA_DETALLE_ELECTRONICA = DB_ESQUEMA + "VEN_GetListGuiaDetalleElectronicaById";
+
         const string SP_SET_UPDATE_GUIA_SAP = DB_ESQUEMA + "VEN_SetUpdateGuiaElectronica";
         const string SP_SET_UPDATE_GUIA_ERROR_SAP = DB_ESQUEMA + "VEN_SetUpdateGuiaElectronicaError";
 
         const string SP_SET_UPDATE_GUIA_LOCAL = DB_ESQUEMA + "INV_SetUpdateGuiaElectronica";
         const string SP_SET_UPDATE_GUIA_ERROR_LOCAL = DB_ESQUEMA + "INV_SetUpdateGuiaElectronicaError";
 
-        const string SP_GET_LIST_GUIA_INTERNA_ELECTRONICA_BY_FILTRO = DB_ESQUEMA + "INV_GuiaInternaElectronicaByFiltro";
-        const string SP_GET_GUIA_INTERNA_ELECTRONICA_BY_ID = DB_ESQUEMA + "INV_GetGuiaInternaElectronicaById";
-        const string SP_GET_LIST_GUIA_DETALLE_INTERNA_ELECTRONICA_BY_ID = DB_ESQUEMA + "INV_GetListGuiaDetalleInternaElectronicaById";
-
-
-        public FacturacionElectronicaSapRepositoy(IConnectionSQL context, IConfiguration configuration)
+        public GuiaElectronicaSapRepository(IConnectionSQL context, IConfiguration configuration)
             : base(context)
         {
             _configuration = configuration;
@@ -50,60 +44,10 @@ namespace Net.Data.Sap
         }
 
 
-        public async Task<ResultadoTransaccionEntity<FacturacionElectronicaSapEntity>> GetListGuiaElectronicaByFiltro(FilterRequestEntity value)
-        {
-            var response = new List<FacturacionElectronicaSapEntity>();
-            var resultTransaccion = new ResultadoTransaccionEntity<FacturacionElectronicaSapEntity>();
-
-            _metodoName = regex.Match(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name).Groups[1].Value.ToString();
-
-            resultTransaccion.NombreMetodo = _metodoName;
-            resultTransaccion.NombreAplicacion = _aplicacionName;
-
-            try
-            {
-                using (SqlConnection conn = new SqlConnection(_cnxSap))
-                {
-                    conn.Open();
-
-                    using (SqlCommand cmd = new SqlCommand(SP_GET_LIST_GUIA_ELECTRONICA_BY_FILTRO, conn))
-                    {
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.CommandTimeout = 0;
-                        cmd.Parameters.Add(new SqlParameter("@FI", value.Dat1));
-                        cmd.Parameters.Add(new SqlParameter("@FF", value.Dat2));
-                        cmd.Parameters.Add(new SqlParameter("@ObjType", value.Cod1));
-                        cmd.Parameters.Add(new SqlParameter("@CodStatus", value.Cod2));
-                        cmd.Parameters.Add(new SqlParameter("@Filtro1", value.Text1));
-                        cmd.Parameters.Add(new SqlParameter("@Filtro2", value.Text2));
-
-                        using (var reader = await cmd.ExecuteReaderAsync())
-                        {
-                            response = (List<FacturacionElectronicaSapEntity>)context.ConvertTo<FacturacionElectronicaSapEntity>(reader);
-                        }
-
-                        resultTransaccion.IdRegistro = 0;
-                        resultTransaccion.ResultadoCodigo = 0;
-                        resultTransaccion.ResultadoDescripcion = string.Format("Registros Totales {0}", response.Count);
-                        resultTransaccion.dataList = response;
-                    }
-
-                    conn.Close();
-                }
-            }
-            catch (Exception ex)
-            {
-                resultTransaccion.IdRegistro = -1;
-                resultTransaccion.ResultadoCodigo = -1;
-                resultTransaccion.ResultadoDescripcion = ex.Message.ToString();
-            }
-
-            return resultTransaccion;
-        }
-        public async Task<ResultadoTransaccionEntity<FacturacionElectronicaSapEntity>> SetEnviar(FilterRequestEntity value)
+        public async Task<ResultadoTransaccionEntity<GuiaElectronicaSapEntity>> SetEnviar(FilterRequestEntity value)
         {
             var guia = new Invoice();
-            var resultTransaccion = new ResultadoTransaccionEntity<FacturacionElectronicaSapEntity>();
+            var resultTransaccion = new ResultadoTransaccionEntity<GuiaElectronicaSapEntity>();
 
             _metodoName = regex.Match(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType.Name).Groups[1].Value.ToString();
 
@@ -116,7 +60,7 @@ namespace Net.Data.Sap
                 {
                     conn.Open();
 
-                    using (SqlCommand cmd = new SqlCommand(SP_GET_GUIA_ELECTRONICA_BY_ID, conn))
+                    using (SqlCommand cmd = new SqlCommand(SP_GET_GUIA_ELECTRONICA, conn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandTimeout = 0;
@@ -129,7 +73,7 @@ namespace Net.Data.Sap
                         }
                     }
 
-                    using (SqlCommand cmd = new SqlCommand(SP_GET_LIST_GUIA_DETALLE_ELECTRONICA_BY_ID, conn))
+                    using (SqlCommand cmd = new SqlCommand(SP_GET_LIST_GUIA_DETALLE_ELECTRONICA, conn))
                     {
                         cmd.CommandType = CommandType.StoredProcedure;
                         cmd.CommandTimeout = 0;
@@ -147,7 +91,7 @@ namespace Net.Data.Sap
 
                     if (rpta.errors == null)
                     {
-                        await SetUpdateSapExito(conn, value, rpta);
+                        await SetUpdateSapExito(conn,value, rpta);
                         await SetUpdateLocalExito(value, rpta);
 
                         resultTransaccion.IdRegistro = 0;

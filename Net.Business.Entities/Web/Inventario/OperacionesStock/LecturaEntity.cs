@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 namespace Net.Business.Entities.Web
 {
     public class LecturaEntity
@@ -16,6 +17,8 @@ namespace Net.Business.Entities.Web
         public int TrgetLine { get; set; }
         public string DocStatus { get; set; }
         public string Return { get; set; }
+        public DateTime DocDate { get; set; }
+        public DateTime DocDueDate { get; set; }
         public string CardCode { get; set; }
         public string CardName { get; set; }
         public string ItemCode { get; set; }
@@ -111,5 +114,28 @@ namespace Net.Business.Entities.Web
         public decimal OpenQty { get; set; }
         public decimal Bulto { get; set; }
         public decimal Peso { get; set; }
+    }
+
+    public class PackingListEntity
+    {
+        public string TargetType { get; set; }
+        public int TrgetEntry { get; set; }
+        public int TrgetLine { get; set; }
+        public string CardName { get; set; }
+        public string Contenedor { get; set; }
+        public string ItemCode { get; set; }
+        public string Dscription { get; set; }
+        public List<PackingListDetalleEntity> Linea { get; set; } = new List<PackingListDetalleEntity>();
+    }
+
+    public class PackingListDetalleEntity
+    {
+        public int Id { get; set; }
+        public string Barcode1 { get; set; } = null;
+        public string Barcode2 { get; set; } = null;
+        public string Barcode3 { get; set; } = null;
+        public string Barcode4 { get; set; } = null;
+        public int TotalItem { get; set; }
+        public decimal PesoTotal { get; set; }
     }
 }

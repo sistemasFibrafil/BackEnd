@@ -44,6 +44,11 @@ namespace Net.Business.Entities.Web
         public decimal TotKilo { get; set; }
         public string JrnlMemo { get; set; } = null;
         public string Comments { get; set; } = null;
+        public string CodStatusSunat { get; set; } = null;
+        public string NomStatusSunat { get; set; } = null;
+        public string DesSunat { get; set; } = null;
+        public string NotSunat { get; set; } = null;
+        public int QtyRding { get; set; } = 0;
 
         public int? IdUsuarioCreate { get; set; } = null;
         public int? IdUsuarioUpdate { get; set; } = null;
